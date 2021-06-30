@@ -11,7 +11,7 @@ source:
 build:
   run_exports:
     - {{ pin_subpackage('libastra', max_pin='x.x.x') }}
-  number: 0
+  number: 1
   string: "{{ "cuda" + cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}"
   skip: true  # [(not linux) or cuda_compiler_version == "None"]
   script:
