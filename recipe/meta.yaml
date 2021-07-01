@@ -5,20 +5,28 @@ package:
   version: {{ version }}
 
 source:
-  url: https://github.com/tomopy/astra-toolbox/archive/refs/tags/{{ version }}.tar.gz
-  sha256: fc8c1bc2553cd93e570e1991b44df301c89ce7d9521033672f2d9d421af94beb
+  url: https://github.com/tomopy/astra-toolbox/archive/refs/tags/{{ version }}-1.tar.gz
+  sha256: b72bec97f4d0df8ed0e931e017bb003383949f395aef3332132298dac4810d88
 
 build:
   run_exports:
     - {{ pin_subpackage('libastra', max_pin='x.x.x') }}
   number: 1
   string: "{{ "cuda" + cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}"
-  skip: true  # [(not linux) or cuda_compiler_version == "None"]
+  skip: true  # [(not (linux64 or win64)) or cuda_compiler_version == "None"]
   script:
-    cmake
-    -G Ninja
-    -DCMAKE_BUILD_TYPE=Release
-    ${CMAKE_ARGS} ${SRC_DIR} && ninja install
+    - for /f "tokens=* usebackq" %%f in (`where nvcc`) do (set "dummy=%%f" && call set "CUDACXX=%%dummy:\=\\%%")  # [win]
+    - echo "nvcc is %CUDACXX%, CUDA path is %CUDA_PATH%"  # [win]
+    - echo "CMAKE_ARGS are %CMAKE_ARGS%"  # [win]
+    - cmake
+      -G Ninja
+      -DCMAKE_BUILD_TYPE=Release
+      ${CMAKE_ARGS} ${SRC_DIR}  # [unix]
+    - cmake
+      -G Ninja
+      -DCMAKE_BUILD_TYPE=Release
+      %CMAKE_ARGS% %SRC_DIR%  # [win]
+    - ninja install
 
 requirements:
   build:
