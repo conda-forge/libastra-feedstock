@@ -36,9 +36,9 @@ test:
     - test -f $PREFIX/lib/libastra${SHLIB_EXT}                          # [unix]
     - test -f $PREFIX/lib/libastra${SHLIB_EXT}.{{ version }}            # [unix]
     - "LD_LIBRARY_PATH=$PREFIX/lib:$LD_LIBRARY_PATH ./tests/astratest"  # [unix]
-    - if not exist %LIBRARY_LIB%\libastra.lib exit \b 1  # [win]
-    - if not exist %LIBRARY_BIN%\libastra.dll exit \b 1  # [win]
-    - "tests/astratest"                                  # [win]
+    - if not exist %LIBRARY_LIB%\\libastra.lib exit 1  # [win]
+    - if not exist %LIBRARY_BIN%\\libastra.dll exit 1  # [win]
+    - tests\\astratest                                 # [win]
 
 about:
   home: http://www.astra-toolbox.com
