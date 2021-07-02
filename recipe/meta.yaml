@@ -11,6 +11,9 @@ source:
 build:
   run_exports:
     - {{ pin_subpackage('libastra', max_pin='x.x.x') }}
+  ignore_run_exports:
+  # conda-build reports the vs2015_runtime is unused
+    - vs2015_runtime  # [win]
   number: 1
   string: "{{ "cuda" + cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}"
   skip: true  # [(not (linux64 or win64)) or cuda_compiler_version == "None"]
@@ -27,6 +30,9 @@ requirements:
   run:
   # unix uses pthread, but win links to libboost:threads
     - {{ pin_compatible('boost-cpp', max_pin='x.x') }}  # [win]
+  # astra is written in c++ but seems to prefer including c headers
+    - ucrt  # [win]
+    
 
 test:
   requires:
