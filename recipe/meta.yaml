@@ -5,20 +5,18 @@ package:
   version: {{ version }}
 
 source:
-  url: https://github.com/tomopy/astra-toolbox/archive/refs/tags/{{ version }}.tar.gz
-  sha256: fc8c1bc2553cd93e570e1991b44df301c89ce7d9521033672f2d9d421af94beb
+  url: https://github.com/tomopy/astra-toolbox/archive/refs/tags/{{ version }}-1.tar.gz
+  sha256: b72bec97f4d0df8ed0e931e017bb003383949f395aef3332132298dac4810d88
 
 build:
   run_exports:
     - {{ pin_subpackage('libastra', max_pin='x.x.x') }}
+  ignore_run_exports:
+  # conda-build reports the vs2015_runtime is unused
+    - vs2015_runtime  # [win]
   number: 1
   string: "{{ "cuda" + cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}"
-  skip: true  # [(not linux) or cuda_compiler_version == "None"]
-  script:
-    cmake
-    -G Ninja
-    -DCMAKE_BUILD_TYPE=Release
-    ${CMAKE_ARGS} ${SRC_DIR} && ninja install
+  skip: true  # [(not (linux64 or win64)) or cuda_compiler_version == "None"]
 
 requirements:
   build:
@@ -29,17 +27,27 @@ requirements:
   host:
     - boost-cpp
     - cudatoolkit
+  run:
+  # unix uses pthread, but win links to libboost:threads
+    - {{ pin_compatible('boost-cpp', max_pin='x.x') }}  # [win]
+  # astra is written in c++ but seems to prefer including c headers
+    - ucrt  # [win]
+    
 
 test:
   requires:
   # libastra uses header-only from Boost, but the unit tests actually link to libboost_unit_test_framework.so
-    - boost-cpp
+    - {{ pin_compatible('boost-cpp', max_pin='x.x') }}
   source_files:
-    - tests/astratest
+    - tests/astratest  # [unix]
+    - tests/astratest.exe  # [win]
   commands:
-    - test -f $PREFIX/lib/libastra${SHLIB_EXT}
-    - test -f $PREFIX/lib/libastra${SHLIB_EXT}.{{ version }}
-    - "LD_LIBRARY_PATH=$PREFIX/lib:$LD_LIBRARY_PATH ./tests/astratest"
+    - test -f $PREFIX/lib/libastra${SHLIB_EXT}                          # [unix]
+    - test -f $PREFIX/lib/libastra${SHLIB_EXT}.{{ version }}            # [unix]
+    - "LD_LIBRARY_PATH=$PREFIX/lib:$LD_LIBRARY_PATH ./tests/astratest"  # [unix]
+    - if not exist %LIBRARY_LIB%\\astra.lib exit 1  # [win]
+    - if not exist %LIBRARY_BIN%\\astra.dll exit 1  # [win]
+    - tests\\astratest                                 # [win]
 
 about:
   home: http://www.astra-toolbox.com
