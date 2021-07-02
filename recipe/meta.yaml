@@ -24,11 +24,14 @@ requirements:
   host:
     - boost-cpp
     - cudatoolkit
+  run:
+  # unix uses pthread, but win links to libboost:threads
+    - {{ pin_compatible('boost-cpp', max_pin='x.x') }}  # [win]
 
 test:
   requires:
   # libastra uses header-only from Boost, but the unit tests actually link to libboost_unit_test_framework.so
-    - boost-cpp
+    - {{ pin_compatible('boost-cpp', max_pin='x.x') }}
   source_files:
     - tests/astratest  # [unix]
     - tests/astratest.exe  # [win]
