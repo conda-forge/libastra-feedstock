@@ -1,12 +1,12 @@
-{% set version = "1.9.9" %}
+{% set version = "2.0.0" %}
 
 package:
   name: libastra
   version: {{ version }}
 
 source:
-  url: https://github.com/tomopy/astra-toolbox/archive/refs/tags/{{ version }}-1.tar.gz
-  sha256: b72bec97f4d0df8ed0e931e017bb003383949f395aef3332132298dac4810d88
+  url: https://github.com/tomopy/astra-toolbox/archive/refs/tags/v{{ version }}-1.tar.gz
+  sha256: c137a0bce7f05dcc38a286b83f6a9fd9a10edb3df66d00ed46c9bbbb4a4c50ca
 
 build:
   run_exports:
@@ -14,7 +14,7 @@ build:
   ignore_run_exports:
   # conda-build reports the vs2015_runtime is unused
     - vs2015_runtime  # [win]
-  number: 1
+  number: 0
   string: "{{ "cuda" + cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}"
   skip: true  # [(not (linux64 or win64)) or cuda_compiler_version == "None"]
 
