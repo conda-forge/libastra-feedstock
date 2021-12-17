@@ -5,8 +5,8 @@ package:
   version: {{ version }}
 
 source:
-  url: https://github.com/tomopy/astra-toolbox/archive/refs/tags/v{{ version }}-1.tar.gz
-  sha256: c137a0bce7f05dcc38a286b83f6a9fd9a10edb3df66d00ed46c9bbbb4a4c50ca
+  url: https://github.com/tomopy/astra-toolbox/archive/refs/tags/v{{ version }}-3.tar.gz
+  sha256: 1b7e807c3acc4da976475a13104e7601b94edc546dcf775c6b6a86ae3e3fa589
 
 build:
   run_exports:
@@ -14,7 +14,7 @@ build:
   ignore_run_exports:
   # conda-build reports the vs2015_runtime is unused
     - vs2015_runtime  # [win]
-  number: 0
+  number: 1
   string: "{{ "cuda" + cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}"
   skip: true  # [(not (linux64 or win64)) or cuda_compiler_version == "None"]
 
