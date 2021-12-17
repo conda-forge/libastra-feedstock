@@ -42,12 +42,13 @@ test:
     - tests/astratest  # [unix]
     - tests/astratest.exe  # [win]
   commands:
-    - test -f $PREFIX/lib/libastra${SHLIB_EXT}                          # [unix]
-    - test -f $PREFIX/lib/libastra${SHLIB_EXT}.{{ version }}            # [unix]
+    - test -f $PREFIX/lib/libastra${SHLIB_EXT}                          # [linux]
+    - test -f $PREFIX/lib/libastra${SHLIB_EXT}.0                        # [linux]
+    - test -f $PREFIX/lib/libastra${SHLIB_EXT}.0.0.0                    # [linux]
     - "LD_LIBRARY_PATH=$PREFIX/lib:$LD_LIBRARY_PATH ./tests/astratest"  # [unix]
-    - if not exist %LIBRARY_LIB%\\astra.lib exit 1  # [win]
-    - if not exist %LIBRARY_BIN%\\astra.dll exit 1  # [win]
-    - tests\\astratest                                 # [win]
+    - if not exist %LIBRARY_LIB%\\AstraCuda64.lib exit 1  # [win]
+    - if not exist %LIBRARY_BIN%\\AstraCuda64.dll exit 1  # [win]
+    - tests\\astratest                                    # [win]
 
 about:
   home: http://www.astra-toolbox.com
