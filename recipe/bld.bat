@@ -1,8 +1,8 @@
 :: Manually specify CUDA host compiler instead of relying on setup scripts
 :: https://gitter.im/conda-forge/conda-forge.github.io?at=5f8901b86c8d484be2898fc5
 
-set CUDACXX="%CUDA_HOME%\bin\nvcc.exe"
-set CUDAHOSTCXX="%CXX%"
+set "CUDACXX=%CUDA_HOME%\bin\nvcc.exe"
+set "CUDAHOSTCXX=%CXX%"
 
 echo "C compiler is %CC%"
 %CC%
