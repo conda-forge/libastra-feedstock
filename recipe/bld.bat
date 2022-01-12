@@ -1,8 +1,9 @@
 :: Manually specify CUDA host compiler instead of relying on setup scripts
 :: https://gitter.im/conda-forge/conda-forge.github.io?at=5f8901b86c8d484be2898fc5
 
-set "CUDACXX=%CUDA_HOME%\bin\nvcc.exe"
-set "CUDAHOSTCXX=%CXX%"
+:: Overriding activation scripts does not work
+:: set "CUDACXX=%CUDA_HOME%\bin\nvcc.exe"
+:: set "CUDAHOSTCXX=%CXX%"
 
 echo "C compiler is %CC%"
 "%CC%"
@@ -17,8 +18,9 @@ echo "CMAKE_ARGS is %CMAKE_ARGS%"
 
 cmake -G Ninja -DCMAKE_BUILD_TYPE=Release^
   -DCMAKE_INSTALL_PREFIX="%LIBRARY_PREFIX%" ^
-  -DCMAKE_CUDA_COMPILER="%CUDACXX:\=/%" ^
-  -DCMAKE_CUDA_HOST_COMPILER="%CUDAHOSTCXX:\=/%" ^
+:: Overriding activation scripts does not work
+::  -DCMAKE_CUDA_COMPILER="%CUDACXX:\=/%" ^
+::  -DCMAKE_CUDA_HOST_COMPILER="%CUDAHOSTCXX:\=/%" ^
   %CMAKE_ARGS% ^
   %SRC_DIR%
 if errorlevel 1 exit 1
