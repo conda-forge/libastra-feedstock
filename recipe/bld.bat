@@ -5,18 +5,23 @@ set "CUDACXX=%CUDA_HOME%\bin\nvcc.exe"
 set "CUDAHOSTCXX=%CXX%"
 
 echo "C compiler is %CC%"
-%CC%
+"%CC%"
 echo "CXX compiler is %CXX%"
-%CXX%
+"%CXX%"
 echo "CUDA path is %CUDA_PATH%"
 echo "CUDA home is %CUDA_HOME%"
 echo "CUDA compiler is %CUDACXX%"
-%CUDACXX% --version
+"%CUDACXX%" --version
 echo "CUDA host compiler is %CUDAHOSTCXX%"
 echo "CMAKE_ARGS is %CMAKE_ARGS%"
+
 cmake -G Ninja -DCMAKE_BUILD_TYPE=Release^
-  -DCMAKE_INSTALL_PREFIX=%LIBRARY_PREFIX%^
-  -DCMAKE_CUDA_COMPILER="%CUDACXX:\=/%"^
-  -DCMAKE_CUDA_HOST_COMPILER="%CUDAHOSTCXX:\=/%"^
-  %CMAKE_ARGS% %SRC_DIR%
+  -DCMAKE_INSTALL_PREFIX="%LIBRARY_PREFIX%" ^
+  -DCMAKE_CUDA_COMPILER="%CUDACXX:\=/%" ^
+  -DCMAKE_CUDA_HOST_COMPILER="%CUDAHOSTCXX:\=/%" ^
+  %CMAKE_ARGS% ^
+  %SRC_DIR%
+if errorlevel 1 exit 1
+
 ninja install
+if errorlevel 1 exit 1
