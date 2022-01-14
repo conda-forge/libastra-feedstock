@@ -16,11 +16,11 @@ echo "CUDA compiler is %CUDACXX%"
 echo "CUDA host compiler is %CUDAHOSTCXX%"
 echo "CMAKE_ARGS is %CMAKE_ARGS%"
 
-cmake -G Ninja -DCMAKE_BUILD_TYPE=Release^
-  -DCMAKE_INSTALL_PREFIX="%LIBRARY_PREFIX%" ^
 :: Overriding activation scripts does not work
 ::  -DCMAKE_CUDA_COMPILER="%CUDACXX:\=/%" ^
 ::  -DCMAKE_CUDA_HOST_COMPILER="%CUDAHOSTCXX:\=/%" ^
+cmake -G Ninja -DCMAKE_BUILD_TYPE=Release^
+  -DCMAKE_INSTALL_PREFIX="%LIBRARY_PREFIX%" ^
   %CMAKE_ARGS% ^
   %SRC_DIR%
 if errorlevel 1 exit 1
