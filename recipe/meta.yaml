@@ -16,7 +16,7 @@ build:
     - vs2015_runtime  # [win]
   number: 2
   string: "{{ "cuda" + cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}"
-  skip: true  # [(not win64) and (not cuda_compiler_version == 10.2)]
+  skip: true  # [not (win64 and cuda_compiler_version == "10.2")]
 
 requirements:
   build:
