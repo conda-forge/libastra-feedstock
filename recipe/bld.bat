@@ -16,6 +16,7 @@ echo "CUDA compiler is %CUDACXX%"
 echo "CUDA host compiler is %CUDAHOSTCXX%"
 echo "CMAKE_ARGS is %CMAKE_ARGS%"
 echo "SRC_DIR is %SRC_DIR%"
+dir
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 :: Overriding activation scripts does not work
@@ -25,9 +26,9 @@ cmake -G "Ninja" ^
       -DCMAKE_INSTALL_PREFIX:PATH="%LIBRARY_PREFIX%" ^
       -DCMAKE_PREFIX_PATH:PATH="%LIBRARY_PREFIX%" ^
       -DCMAKE_BUILD_TYPE:STRING=Release ^
-      %CMAKE_ARGS% %SRC_DIR%
+      %CMAKE_ARGS% .
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-ninja install %SRC_DIR%
+ninja install .
 if %errorlevel% neq 0 exit /b %errorlevel%
 exit /b 0
