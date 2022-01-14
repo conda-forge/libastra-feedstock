@@ -22,7 +22,7 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 :: Overriding activation scripts does not work
 ::  -DCMAKE_CUDA_COMPILER="%CUDACXX:\=/%" ^
 ::  -DCMAKE_CUDA_HOST_COMPILER="%CUDAHOSTCXX:\=/%" ^
-cmake -G "Ninja" ^
+cmake -GNinja ^
       -DCMAKE_INSTALL_PREFIX:PATH="%LIBRARY_PREFIX%" ^
       -DCMAKE_PREFIX_PATH:PATH="%LIBRARY_PREFIX%" ^
       -DCMAKE_BUILD_TYPE:STRING=Release ^
