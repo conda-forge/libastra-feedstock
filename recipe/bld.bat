@@ -36,9 +36,9 @@ cmake -G "Ninja" ^
       %CMAKE_ARGS% ..
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-cmake --build .
+ninja
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-cmake ---install .
+ninja install
 if %errorlevel% neq 0 exit /b %errorlevel%
 exit /b 0
