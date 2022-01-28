@@ -28,6 +28,8 @@ cd build
 :: Overriding activation scripts does not work
 ::  -DCMAKE_CUDA_COMPILER="%CUDACXX:\=/%" ^
 ::  -DCMAKE_CUDA_HOST_COMPILER="%CUDAHOSTCXX:\=/%" ^
+
+
 cmake -G "Ninja" ^
       -DCMAKE_INSTALL_PREFIX:PATH="%LIBRARY_PREFIX%" ^
       -DCMAKE_PREFIX_PATH:PATH="%LIBRARY_PREFIX%" ^
