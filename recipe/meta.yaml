@@ -36,16 +36,16 @@ requirements:
   build:
     - cmake 3.21.3 h39d44d4_0
     - ninja 1.10.2 h2d74725_1
-    - nvcc_win-64 11.1 h113b51f_15
+    - nvcc_win-64 10.2 hcf0059e_15
     - ucrt 10.0.20348.0 h57928b3_0
     - vc 14.2 hb210afc_5
     - vs2015_runtime 14.29.30037 h902a5da_5
     - vs2017_win-64 19.16.27038 h2e3bad8_2
-    - vswhere 2.8.4 h57928b3_0   
+    - vswhere 2.8.4 h57928b3_0
   host:
     - boost-cpp 1.74.0 h5b4e17d_5
     - bzip2 1.0.8 h8ffe710_4
-    - cudatoolkit 11.1.1 heb2d755_9
+    - cudatoolkit 10.2.89 hb195166_9
     - libzlib 1.2.11 h8ffe710_1013
     - lz4-c 1.9.3 h8ffe710_1
     - ucrt 10.0.20348.0 h57928b3_0
@@ -56,7 +56,7 @@ requirements:
     - zstd 1.5.0 h6255e5f_0
   run:
     - boost-cpp >=1.74.0,<1.74.1.0a0
-    - cudatoolkit 11.1|11.1.*
+    - cudatoolkit 10.2|10.2.*
     - ucrt
     - vc >=14.1,<15.0a0
 test:
