@@ -36,12 +36,11 @@ requirements:
   build:
     - cmake 3.21.3 h39d44d4_0
     - ninja 1.10.2 h2d74725_1
-    - {{ compiler('cuda') }}
     - nvcc_win-64 10.2 hcf0059e_15
     - ucrt 10.0.20348.0 h57928b3_0
     - vc 14.2 hb210afc_5
     - vs2015_runtime 14.29.30037 h902a5da_5
-    - vs2017_win-64 19.16.27038 h2e3bad8_2
+    - vs2017_win-64 19.16.27033 hb90652a_3
     - vswhere 2.8.4 h57928b3_0
   host:
     - boost-cpp 1.74.0 h5b4e17d_5
