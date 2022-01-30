@@ -29,7 +29,7 @@ cd build
 ::  -DCMAKE_CUDA_COMPILER="%CUDACXX:\=/%" ^
 ::  -DCMAKE_CUDA_HOST_COMPILER="%CUDAHOSTCXX:\=/%" ^
 
-
+setlocal
 cmake -G "Ninja" ^
       -DCMAKE_INSTALL_PREFIX:PATH="%LIBRARY_PREFIX%" ^
       -DCMAKE_PREFIX_PATH:PATH="%LIBRARY_PREFIX%" ^
@@ -37,6 +37,7 @@ cmake -G "Ninja" ^
       -DCUDA_TOOLKIT_ROOT_DIR="%CUDA_TOOLKIT_ROOT_DIR%" ^
       %CMAKE_ARGS% ..
 if %errorlevel% neq 0 exit /b %errorlevel%
+endlocal
 
 ninja
 if %errorlevel% neq 0 exit /b %errorlevel%
