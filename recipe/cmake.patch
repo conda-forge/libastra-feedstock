@@ -1,0 +1,197 @@
+diff --git a/.gitignore b/.gitignore
+index b203e2a..18064e3 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -37,3 +37,4 @@ __pycache__
+ /build/linux/ltmain.sh
+ /build/linux/src/*
+ /build/linux/matlab/*
++/build/cmake*
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+new file mode 100644
+index 0000000..d5ed4ec
+--- /dev/null
++++ b/CMakeLists.txt
+@@ -0,0 +1,37 @@
++# 3.11.0 is from scikit-build documentation
++# 3.18.0 is required for CUDA_ARCHITECTURES property
++cmake_minimum_required(VERSION 3.18.0)
++
++# Get consistent behavior out of all the compilers
++set(CMAKE_CXX_STANDARD 11)
++set(CMAKE_CXX_STANDARD_REQUIRED ON)
++set(CMAKE_CXX_EXTENSIONS OFF)
++
++project(
++  astra-toolbox
++  VERSION 2.1.0
++  DESCRIPTION
++    "a MATLAB and Python toolbox of high-performance GPU primitives for 2D and 3D tomography."
++  LANGUAGES CUDA CXX)
++
++add_subdirectory(src)
++
++if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
++  include(CTest)
++endif()
++
++if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
++  add_subdirectory(tests)
++endif()
++
++# Installs these targets to CMAKE_INSTALL_PREFIX
++install(
++  TARGETS astra
++  EXPORT AstraTargets
++  LIBRARY DESTINATION "lib")
++install(DIRECTORY "${CMAKE_SOURCE_DIR}/include" DESTINATION ".")
++install(
++  EXPORT AstraTargets
++  FILE "AstraTargets.cmake"
++  NAMESPACE "astra::"
++  DESTINATION "lib/cmake/astra")
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+new file mode 100644
+index 0000000..941fa98
+--- /dev/null
++++ b/src/CMakeLists.txt
+@@ -0,0 +1,77 @@
++# Find libboost components ---------------------------------------------------
++
++set(Boost_USE_STATIC_LIBS OFF)
++set(Boost_USE_MULTITHREADED ON)
++set(Boost_USE_STATIC_RUNTIME OFF)
++find_package(Boost 1.70 REQUIRED COMPONENTS thread)
++
++# Collect source and header files --------------------------------------------
++file(GLOB ASTRA_SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp"
++     "${CMAKE_SOURCE_DIR}/cuda/*/*.cu")
++
++message(VERBOSE "Complete list of libastra sources: ${ASTRA_SOURCES}")
++
++file(GLOB_RECURSE ASTRA_HEADERS "${CMAKE_SOURCE_DIR}/include/*"
++     LIST_DIRECTORIES false)
++message(VERBOSE "Public headers: ${ASTRA_HEADERS}")
++
++set(ASTRA_INCLUDES
++    "${CMAKE_SOURCE_DIR}/include" ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
++    "${CMAKE_SOURCE_DIR}/lib/include")
++
++message(VERBOSE "Include directories for libastra: ${ASTRA_INCLUDES}")
++
++# Set CUDA target architectures ----------------------------------------------
++
++if(NOT DEFINED ENV{CUDAARCHS})
++     set(CMAKE_CUDA_ARCHITECTURES "")
++     if((CMAKE_CUDA_COMPILER_VERSION VERSION_GREATER_EQUAL 5) AND
++        (CMAKE_CUDA_COMPILER_VERSION VERSION_LESS 11))
++          list(APPEND CMAKE_CUDA_ARCHITECTURES "30;32")
++     endif()
++     if((CMAKE_CUDA_COMPILER_VERSION VERSION_GREATER_EQUAL 5) AND
++        (CMAKE_CUDA_COMPILER_VERSION VERSION_LESS 12))
++          list(APPEND CMAKE_CUDA_ARCHITECTURES "35;37")
++     endif()
++     if((CMAKE_CUDA_COMPILER_VERSION VERSION_GREATER_EQUAL 6) AND
++        (CMAKE_CUDA_COMPILER_VERSION VERSION_LESS 12))
++          list(APPEND CMAKE_CUDA_ARCHITECTURES "50;52;53")
++     endif()
++     if(CMAKE_CUDA_COMPILER_VERSION VERSION_GREATER_EQUAL 8)
++          list(APPEND CMAKE_CUDA_ARCHITECTURES "60;61;62")
++     endif()
++     if(CMAKE_CUDA_COMPILER_VERSION VERSION_GREATER_EQUAL 9)
++          list(APPEND CMAKE_CUDA_ARCHITECTURES "70;72")
++     endif()
++     if(CMAKE_CUDA_COMPILER_VERSION VERSION_GREATER_EQUAL 10)
++          list(APPEND CMAKE_CUDA_ARCHITECTURES "75")
++     endif()
++     if(CMAKE_CUDA_COMPILER_VERSION VERSION_GREATER_EQUAL 11.1)
++          list(APPEND CMAKE_CUDA_ARCHITECTURES "80;86")
++     endif()
++endif()
++message(STATUS "CUDA ${CMAKE_CUDA_COMPILER_VERSION} built for archs ${CMAKE_CUDA_ARCHITECTURES}")
++
++# Declare libastra and assign all the properties -----------------------------
++
++add_library(astra SHARED ${ASTRA_SOURCES})
++
++if(WIN32)
++     set(OUTPUT_NAME "AstraCuda64")
++else()
++     set(OUTPUT_NAME "astra")
++endif()
++
++set_target_properties(
++  astra
++  PROPERTIES POSITION_INDEPENDENT_CODE ON
++             # ASTRA_CUDA enables CUDA poritions of code
++             # DLL_EXPORTS marks functions as for external use (shared library) on Windows
++             # __SSE2__ enables Streaming SIMD Extensions 2 where available
++             COMPILE_DEFINITIONS "ASTRA_CUDA;DLL_EXPORTS;__SSE2__"
++             COMPILE_FEATURES cxx_std_11
++             INCLUDE_DIRECTORIES "${ASTRA_INCLUDES}"
++             LINK_LIBRARIES "Boost::thread;cufft"
++             VERSION 0.0.0
++             SOVERSION 0
++             OUTPUT_NAME "${OUTPUT_NAME}")
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+new file mode 100644
+index 0000000..347e065
+--- /dev/null
++++ b/tests/CMakeLists.txt
+@@ -0,0 +1,28 @@
++# Find libboost components ---------------------------------------------------
++
++set(Boost_USE_STATIC_LIBS OFF)
++set(Boost_USE_MULTITHREADED ON)
++set(Boost_USE_STATIC_RUNTIME OFF)
++find_package(Boost 1.71 REQUIRED COMPONENTS unit_test_framework)
++
++# Collect source and header files --------------------------------------------
++
++file(GLOB ASTRA_TEST_SOURCES "${CMAKE_SOURCE_DIR}/tests/*.cpp")
++
++set(ASTRA_INCLUDES
++    "${CMAKE_SOURCE_DIR}/include" ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
++    "${CMAKE_SOURCE_DIR}/lib/include")
++
++# Declare tests and register with cmake
++
++add_executable(astratest ${ASTRA_TEST_SOURCES})
++
++set_target_properties(
++  astratest
++  PROPERTIES POSITION_INDEPENDENT_CODE ON
++             COMPILE_DEFINITIONS "ASTRA_CUDA"
++             COMPILE_FEATURES cxx_std_11
++             INCLUDE_DIRECTORIES "${ASTRA_INCLUDES}"
++             LINK_LIBRARIES "Boost::unit_test_framework;astra")
++
++add_test(COMMAND astratest)
+diff --git a/tests/python/test_line2d.py b/tests/python/test_line2d.py
+index e5d8f2b..5d1cf82 100644
+--- a/tests/python/test_line2d.py
++++ b/tests/python/test_line2d.py
+@@ -2,7 +2,6 @@ import numpy as np
+ import unittest
+ import astra
+ import math
+-import pylab
+ 
+ # Display sinograms with mismatch on test failure
+ DISPLAY=False
+@@ -356,6 +355,7 @@ def proj_type_to_fan(t):
+     return t + '_fanflat'
+ 
+ def display_mismatch(data, sinogram, a):
++  import pylab
+   pylab.gray()
+   pylab.imshow(data)
+   pylab.figure()
+@@ -367,6 +367,7 @@ def display_mismatch(data, sinogram, a):
+   pylab.show()
+ 
+ def display_mismatch_triple(data, sinogram, a, b, c):
++  import pylab
+   pylab.gray()
+   pylab.imshow(data)
+   pylab.figure()
