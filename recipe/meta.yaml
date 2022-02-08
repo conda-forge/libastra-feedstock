@@ -1,12 +1,14 @@
-{% set version = "2.0.0" %}
+{% set version = "2.1.0" %}
 
 package:
   name: libastra
   version: {{ version }}
 
 source:
-  url: https://github.com/tomopy/astra-toolbox/archive/refs/tags/v{{ version }}-3.tar.gz
-  sha256: 1b7e807c3acc4da976475a13104e7601b94edc546dcf775c6b6a86ae3e3fa589
+  url: https://github.com/astra-toolbox/astra-toolbox/archive/refs/tags/v{{ version }}.tar.gz
+  sha256: 7768863a2756887e54829725e8fe95a371c7cb0cdfa5392b2e11cfc290f54dc3
+  patches:
+    - cmake.patch
 
 build:
   run_exports:
@@ -14,7 +16,7 @@ build:
   ignore_run_exports:
   # conda-build reports the vs2015_runtime is unused
     - vs2015_runtime  # [win]
-  number: 1
+  number: 0
   string: "{{ "cuda" + cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}"
   skip: true  # [(not (linux64 or win64)) or cuda_compiler_version == "None"]
 
@@ -32,7 +34,6 @@ requirements:
     - {{ pin_compatible('boost-cpp', max_pin='x.x') }}  # [win]
   # astra is written in c++ but seems to prefer including c headers
     - ucrt  # [win]
-    
 
 test:
   requires:
