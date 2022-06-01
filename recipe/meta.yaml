@@ -13,9 +13,9 @@ source:
 build:
   run_exports:
     - {{ pin_subpackage('libastra', max_pin='x.x.x') }}
-  ignore_run_exports:
-  # conda-build reports the vs2015_runtime is unused
-    - vs2015_runtime  # [win]
+  ignore_run_exports_from:
+    - {{ compiler('cxx') }}  # [win]
+    - ucrt                   # [win]
   number: 2
   string: "{{ "cuda" + cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}"
   skip: true  # [cuda_compiler_version == "None"]
@@ -24,7 +24,8 @@ requirements:
   build:
     - {{ compiler('cuda') }}
     - {{ compiler('cxx') }}
-    - cmake
+    # CMake policy max must be set to 3.22 for CMake to not autodetect architectures
+    - cmake >=3.18
     - ninja
   host:
     - boost-cpp

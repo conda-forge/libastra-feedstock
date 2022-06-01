@@ -15,7 +15,7 @@ index 0000000..d5ed4ec
 @@ -0,0 +1,37 @@
 +# 3.11.0 is from scikit-build documentation
 +# 3.18.0 is required for CUDA_ARCHITECTURES property
-+cmake_minimum_required(VERSION 3.18.0)
++cmake_minimum_required(VERSION 3.18...3.22)
 +
 +# Get consistent behavior out of all the compilers
 +set(CMAKE_CXX_STANDARD 11)
@@ -176,12 +176,12 @@ index e5d8f2b..5d1cf82 100644
  import astra
  import math
 -import pylab
- 
+
  # Display sinograms with mismatch on test failure
  DISPLAY=False
 @@ -356,6 +355,7 @@ def proj_type_to_fan(t):
      return t + '_fanflat'
- 
+
  def display_mismatch(data, sinogram, a):
 +  import pylab
    pylab.gray()
@@ -189,7 +189,7 @@ index e5d8f2b..5d1cf82 100644
    pylab.figure()
 @@ -367,6 +367,7 @@ def display_mismatch(data, sinogram, a):
    pylab.show()
- 
+
  def display_mismatch_triple(data, sinogram, a, b, c):
 +  import pylab
    pylab.gray()
