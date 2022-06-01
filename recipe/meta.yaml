@@ -40,16 +40,16 @@ test:
   # libastra uses header-only from Boost, but the unit tests actually link to libboost_unit_test_framework.so
     - {{ pin_compatible('boost-cpp', max_pin='x.x') }}
   source_files:
-    - tests/astratest  # [unix]
-    - tests/astratest.exe  # [win]
+    - build/tests/astratest  # [unix]
+    - build/tests/astratest.exe  # [win]
   commands:
     - test -f $PREFIX/lib/libastra${SHLIB_EXT}                          # [linux]
     - test -f $PREFIX/lib/libastra${SHLIB_EXT}.0                        # [linux]
     - test -f $PREFIX/lib/libastra${SHLIB_EXT}.0.0.0                    # [linux]
-    - "LD_LIBRARY_PATH=$PREFIX/lib:$LD_LIBRARY_PATH ./tests/astratest"  # [unix]
+    - "LD_LIBRARY_PATH=$PREFIX/lib:$LD_LIBRARY_PATH ./build/tests/astratest"  # [unix]
     - if not exist %LIBRARY_LIB%\\AstraCuda64.lib exit 1  # [win]
     - if not exist %LIBRARY_BIN%\\AstraCuda64.dll exit 1  # [win]
-    - tests\\astratest                                    # [win]
+    - build\\tests\\astratest                                    # [win]
 
 about:
   home: http://www.astra-toolbox.com
