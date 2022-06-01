@@ -15,6 +15,7 @@ build:
     - {{ pin_subpackage('libastra', max_pin='x.x.x') }}
   ignore_run_exports_from:
     - {{ compiler('cxx') }}  # [win]
+  ignore_run_exports:
     - ucrt                   # [win]
   number: 2
   string: "{{ "cuda" + cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}"
