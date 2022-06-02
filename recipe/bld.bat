@@ -2,7 +2,6 @@
 set CUDACXX="%CUDA_PATH%\bin\nvcc.exe"
 set "CUDACXX=%CUDACXX:\=/%"
 set "CXX=%CXX:\=/%"
-set CUDAHOSTCXX="%CXX%"
 
 echo "CUDACXX is %CUDACXX%"
 echo "CXX is %CXX%"
