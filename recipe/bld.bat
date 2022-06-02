@@ -1,8 +1,11 @@
 @REM This explicit path requires that the exact cudatoolkit is installed
 set CUDACXX="%CUDA_PATH%\bin\nvcc.exe"
 set "CUDACXX=%CUDACXX:\=/%"
-set CUDAHOSTCXX=%CXX%
+set "CXX=%CXX:\=/%"
+set CUDAHOSTCXX="%CXX%"
+
 echo "CUDACXX is %CUDACXX%"
+echo "CXX is %CXX%"
 echo "CUDA_PATH is %CUDA_PATH%"
 echo "CMAKE_ARGS are %CMAKE_ARGS%"
 
