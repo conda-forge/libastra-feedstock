@@ -1,4 +1,9 @@
-echo "nvcc is %CUDACXX%, CUDA path is %CUDA_PATH%"
+@REM This explicit path requires that the exact cudatoolkit is installed
+set CUDACXX="%CUDA_PATH%\bin\nvcc.exe"
+set "CUDACXX=%CUDACXX:\=/%"
+set CUDAHOSTCXX=%CXX%
+echo "CUDACXX is %CUDACXX%"
+echo "CUDA_PATH is %CUDA_PATH%"
 echo "CMAKE_ARGS are %CMAKE_ARGS%"
 
 cd .\build
@@ -7,7 +12,6 @@ if errorlevel 1 exit /b 1
 cmake -GNinja^
   -DCMAKE_BUILD_TYPE=Release^
   -DCMAKE_INSTALL_PREFIX:PATH="%LIBRARY_PREFIX%"^
-  -DCMAKE_CXX_COMPILER:FILEPATH="%CXX%"^
   %CMAKE_ARGS%^
   %SRC_DIR%
 if errorlevel 1 exit /b 1
