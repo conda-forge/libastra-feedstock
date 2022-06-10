@@ -20,13 +20,14 @@ build:
   number: 2
   string: "{{ "cuda" + cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}"
   skip: true  # [cuda_compiler_version == "None"]
+  skip: true  # [win]
 
 requirements:
   build:
     - {{ compiler('cuda') }}
     - {{ compiler('cxx') }}
     # CMake policy max must be set to 3.22 for CMake to not autodetect architectures
-    - cmake ==3.18
+    - cmake >=3.18
     - ninja
   host:
     - boost-cpp
