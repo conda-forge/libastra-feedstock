@@ -17,6 +17,7 @@ if errorlevel 1 exit /b 1
 cmake -GNinja^
   -DCMAKE_BUILD_TYPE=Release^
   -DCMAKE_INSTALL_PREFIX:PATH="%LIBRARY_PREFIX%"^
+  -DASTRA_USE_CUDA:BOOL=%ASTRA_USE_CUDA%^
   %CMAKE_ARGS%^
   %SRC_DIR%
 if errorlevel 1 exit /b 1

@@ -18,13 +18,15 @@ build:
   ignore_run_exports:
     - ucrt                   # [win]
   number: 2
-  string: "{{ "cuda" + cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}"
-  skip: true  # [cuda_compiler_version == "None"]
-  skip: true  # [win]
+  string: "{{ "cuda" + cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}"  # [cuda_compiler_version != "None"]
+  skip: True  # [win and (cuda_compiler_version != "None")]
+  script_env:
+    - ASTRA_USE_CUDA=ON   # [cuda_compiler_version != "None"]
+    - ASRTA_USE_CUDA=OFF  # [cuda_compiler_version == "None"]
 
 requirements:
   build:
-    - {{ compiler('cuda') }}
+    - {{ compiler('cuda') }}  # [cuda_compiler_version != "None"]
     - {{ compiler('cxx') }}
     # CMake policy max must be set to 3.22 for CMake to not autodetect architectures
     - cmake >=3.18
