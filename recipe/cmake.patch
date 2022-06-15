@@ -9,10 +9,10 @@ index b203e2a..18064e3 100644
 +/build/cmake*
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 new file mode 100644
-index 0000000..5bd8865
+index 0000000..642d555
 --- /dev/null
 +++ b/CMakeLists.txt
-@@ -0,0 +1,60 @@
+@@ -0,0 +1,44 @@
 +# 3.11.0 is from scikit-build documentation 3.18.0 is required for
 +# CUDA_ARCHITECTURES property
 +cmake_minimum_required(VERSION 3.18.0)
