@@ -64,13 +64,13 @@ index 0000000..5bd8865
 +    CODE "execute_process( \
 +      COMMAND ${CMAKE_COMMAND} -E create_symlink \
 +      ${CMAKE_INSTALL_PREFIX}/bin/astra.dll \
-+      ${CMAKE_INSTALL_PREFIX}/bin/AstraCuda64.dll \
++      AstraCuda64.dll \
 +    )")
 +  install(
 +    CODE "execute_process( \
 +      COMMAND ${CMAKE_COMMAND} -E create_symlink \
-+      ${CMAKE_INSTALL_PREFIX}/bin/astra.lib \
-+      ${CMAKE_INSTALL_PREFIX}/lib/AstraCuda64.lib \
++      ${CMAKE_INSTALL_PREFIX}/lib/astra.lib \
++      AstraCuda64.lib \
 +    )")
 +endif()
 diff --git a/python/pyproject.toml b/python/pyproject.toml
