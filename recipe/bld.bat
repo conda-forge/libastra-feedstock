@@ -27,3 +27,6 @@ if errorlevel 1 exit /b 1
 
 cmake --install .
 if errorlevel 1 exit /b 1
+
+mklink "%LIBRARY_PREFIX%\bin\AstraCuda64.dll" "%LIBRARY_PREFIX%\bin\astra.dll"
+mklink "%LIBRARY_PREFIX%\lib\AstraCuda64.lib" "%LIBRARY_PREFIX%\lib\astra.lib"
