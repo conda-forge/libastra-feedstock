@@ -56,23 +56,6 @@ index 0000000..5bd8865
 +  FILE "AstraTargets.cmake"
 +  NAMESPACE "astra::"
 +  DESTINATION "lib/cmake/astra")
-+
-+if(WIN32)
-+  # For link compatability with upstream. For some reason the windows library
-+  # has a different name.
-+  install(
-+    CODE "execute_process( \
-+      COMMAND ${CMAKE_COMMAND} -E create_symlink \
-+      ${CMAKE_INSTALL_PREFIX}/bin/astra.dll \
-+      ${CMAKE_INSTALL_PREFIX}/bin/AstraCuda64.dll \
-+    )")
-+  install(
-+    CODE "execute_process( \
-+      COMMAND ${CMAKE_COMMAND} -E create_symlink \
-+      ${CMAKE_INSTALL_PREFIX}/lib/astra.lib \
-+      ${CMAKE_INSTALL_PREFIX}/lib/AstraCuda64.lib \
-+    )")
-+endif()
 diff --git a/python/pyproject.toml b/python/pyproject.toml
 new file mode 100644
 index 0000000..148adaf
