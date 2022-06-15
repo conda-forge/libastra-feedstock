@@ -9,10 +9,10 @@ index b203e2a..18064e3 100644
 +/build/cmake*
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 new file mode 100644
-index 0000000..43b3cb6
+index 0000000..5bd8865
 --- /dev/null
 +++ b/CMakeLists.txt
-@@ -0,0 +1,43 @@
+@@ -0,0 +1,60 @@
 +# 3.11.0 is from scikit-build documentation 3.18.0 is required for
 +# CUDA_ARCHITECTURES property
 +cmake_minimum_required(VERSION 3.18.0)
@@ -56,12 +56,147 @@ index 0000000..43b3cb6
 +  FILE "AstraTargets.cmake"
 +  NAMESPACE "astra::"
 +  DESTINATION "lib/cmake/astra")
++
++if(WIN32)
++  # For link compatability with upstream. For some reason the windows library
++  # has a different name.
++  install(
++    CODE "execute_process( \
++      COMMAND ${CMAKE_COMMAND} -E create_symlink \
++      ${CMAKE_INSTALL_PREFIX}/bin/astra.dll \
++      ${CMAKE_INSTALL_PREFIX}/bin/AstraCuda64.dll \
++    )")
++  install(
++    CODE "execute_process( \
++      COMMAND ${CMAKE_COMMAND} -E create_symlink \
++      ${CMAKE_INSTALL_PREFIX}/bin/astra.lib \
++      ${CMAKE_INSTALL_PREFIX}/lib/AstraCuda64.lib \
++    )")
++endif()
+diff --git a/python/pyproject.toml b/python/pyproject.toml
+new file mode 100644
+index 0000000..148adaf
+--- /dev/null
++++ b/python/pyproject.toml
+@@ -0,0 +1,2 @@
++[build-system]
++requires = ["setuptools ~= 58.0", "wheel", "cython >= 0.13", "numpy"]
+diff --git a/python/setup.py b/python/setup.py
+new file mode 100644
+index 0000000..f1ed06f
+--- /dev/null
++++ b/python/setup.py
+@@ -0,0 +1,104 @@
++# -----------------------------------------------------------------------
++# Copyright: 2010-2022, imec Vision Lab, University of Antwerp
++#            2013-2022, CWI, Amsterdam
++#
++# Contact: astra@astra-toolbox.com
++# Website: http://www.astra-toolbox.com/
++#
++# This file is part of the ASTRA Toolbox.
++#
++#
++# The ASTRA Toolbox is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation, either version 3 of the License, or
++# (at your option) any later version.
++#
++# The ASTRA Toolbox is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with the ASTRA Toolbox. If not, see <http://www.gnu.org/licenses/>.
++#
++# -----------------------------------------------------------------------
++import os
++import platform
++
++from Cython.Build import cythonize
++import numpy as np
++from setuptools import setup
++
++ASTRA_USE_CUDA = os.environ.get('ASTRA_USE_CUDA') in ('ON', 'TRUE', 'YES')
++print("ASTRA_USE_CUDA is set to {}".format(ASTRA_USE_CUDA))
++
++# Create a cython cxi file with either HAVE_CUDA=True or False
++with open(
++        os.path.join(os.path.dirname(__file__), 'astra', 'config.pxi'),
++        'w',
++) as cfg:
++    cfg.write('DEF HAVE_CUDA={!s}\n'.format(ASTRA_USE_CUDA))
++
++ext_modules = cythonize(
++    module_list=os.path.join('.', 'astra', '*.pyx'),
++    language_level=2,  # sets python features to python 2
++)
++
++# Add additional parameters to each Extension
++for m in ext_modules:
++    m.include_dirs += [
++        np.get_include(),
++        os.path.join(
++            os.environ['CONDA_PREFIX'],
++            'Library' if platform.system() == 'Windows' else '',
++            'include',
++        )
++    ]
++    m.define_macros += [
++        ('ASTRA_PYTHON', None),
++        ('ASTRA_CUDA', None) if ASTRA_USE_CUDA else ('NO_ASTRA_CUDA', None),
++    ]
++    m.library_dirs += [
++        os.path.join(
++            os.environ['CONDA_PREFIX'],
++            'Library' if platform.system() == 'Windows' else '',
++            'lib',
++        )
++    ]
++    if m.name in ('astra.plugin_c', 'astra.algorithm_c'):
++        m.sources.append(
++            os.path.join(
++                '.',
++                'astra',
++                'src',
++                'PythonPluginAlgorithm.cpp',
++            ))
++    if m.name in ('astra.plugin_c'):
++        m.sources.append(
++            os.path.join(
++                '.',
++                'astra',
++                'src',
++                'PythonPluginAlgorithmFactory.cpp',
++            ))
++
++setup(
++    name='astra-toolbox',
++    version='2.1.0',
++    description='Python interface to the ASTRA Toolbox',
++    author='D.M. Pelt',
++    author_email='D.M.Pelt@cwi.nl',
++    url='https://github.com/astra-toolbox/astra-toolbox',
++    license='GPLv3',
++    ext_modules=ext_modules,
++    packages=[
++        'astra',
++        'astra.plugins',
++    ],
++    install_requires=[
++        'numpy',
++        'scipy',
++        'six',
++    ],
++    zip_safe=False,
++)
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
 new file mode 100644
-index 0000000..b7ce36b
+index 0000000..0e85b9d
 --- /dev/null
 +++ b/src/CMakeLists.txt
-@@ -0,0 +1,224 @@
+@@ -0,0 +1,218 @@
 +# Find libboost components ---------------------------------------------------
 +
 +set(Boost_USE_STATIC_LIBS OFF)
@@ -147,12 +282,6 @@ index 0000000..b7ce36b
 +# Declare libastra and assign all the properties -----------------------------
 +
 +add_library(astra SHARED ${ASTRA_SOURCES})
-+
-+if(WIN32)
-+  set(OUTPUT_NAME "AstraCuda64")
-+else()
-+  set(OUTPUT_NAME "astra")
-+endif()
 +
 +set_target_properties(
 +  astra
@@ -286,6 +415,21 @@ index 0000000..b7ce36b
 +    PROPERTY LINK_LIBRARIES "cufft")
 +
 +endif()
+diff --git a/src/Globals.cpp b/src/Globals.cpp
+index 5b19eb5..255747b 100644
+--- a/src/Globals.cpp
++++ b/src/Globals.cpp
+@@ -26,7 +26,10 @@ along with the ASTRA Toolbox. If not, see <http://www.gnu.org/licenses/>.
+ */
+ 
+ #include "astra/Globals.h"
++
++#ifdef ASTRA_CUDA
+ #include "astra/cuda/2d/astra.h"
++#endif
+ 
+ namespace astra {
+ 
 diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
 new file mode 100644
 index 0000000..347e065
