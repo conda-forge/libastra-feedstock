@@ -50,8 +50,10 @@ test:
     - test -f $PREFIX/lib/libastra${SHLIB_EXT}.0                        # [linux]
     - test -f $PREFIX/lib/libastra${SHLIB_EXT}.0.0.0                    # [linux]
     - "LD_LIBRARY_PATH=$PREFIX/lib:$LD_LIBRARY_PATH ./build/tests/astratest"  # [unix]
-    - if not exist %LIBRARY_LIB%\\AstraCuda64.lib exit 1  # [win]
-    - if not exist %LIBRARY_BIN%\\AstraCuda64.dll exit 1  # [win]
+    # Library named differently from upstream because it makes linking
+    # consistent between platforms. Links don't work on Windows.
+    - if not exist %LIBRARY_LIB%\\astra.lib exit 1  # [win]
+    - if not exist %LIBRARY_BIN%\\astra.dll exit 1  # [win]
     - build\\tests\\astratest                                    # [win]
 
 about:
