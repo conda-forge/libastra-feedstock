@@ -13,43 +13,48 @@ source:
 build:
   run_exports:
     - {{ pin_subpackage('libastra', max_pin='x.x.x') }}
-  ignore_run_exports:
-  # conda-build reports the vs2015_runtime is unused
-    - vs2015_runtime  # [win]
-  number: 1
-  string: "{{ "cuda" + cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}"
-  skip: true  # [(not (linux64)) or cuda_compiler_version == "None"]
+    - libastra =*=cuda*  # [cuda_compiler_version != "None"]
+    - libastra =*=h*     # [cuda_compiler_version == "None"]
+  ignore_run_exports_from:
+    - {{ compiler('cxx') }}  # [win]
+  number: 2
+  string: "{{ "cuda" + cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}"  # [cuda_compiler_version != "None"]
+  skip: True  # [win and (cuda_compiler_version != "None")]
+  script_env:
+    - ASTRA_USE_CUDA=ON   # [cuda_compiler_version != "None"]
+    - ASRTA_USE_CUDA=OFF  # [cuda_compiler_version == "None"]
 
 requirements:
   build:
-    - {{ compiler('cuda') }}
+    - {{ compiler('cuda') }}  # [cuda_compiler_version != "None"]
     - {{ compiler('cxx') }}
-    - cmake
+    # CMake policy max must be set to 3.22 for CMake to not autodetect architectures
+    - cmake >=3.18
     - ninja
   host:
     - boost-cpp
-    - cudatoolkit
+    - cudatoolkit  # [cuda_compiler_version != "None"]
   run:
   # unix uses pthread, but win links to libboost:threads
     - {{ pin_compatible('boost-cpp', max_pin='x.x') }}  # [win]
-  # astra is written in c++ but seems to prefer including c headers
-    - ucrt  # [win]
 
 test:
   requires:
   # libastra uses header-only from Boost, but the unit tests actually link to libboost_unit_test_framework.so
     - {{ pin_compatible('boost-cpp', max_pin='x.x') }}
   source_files:
-    - tests/astratest  # [unix]
-    - tests/astratest.exe  # [win]
+    - build/tests/astratest  # [unix]
+    - build/tests/astratest.exe  # [win]
   commands:
     - test -f $PREFIX/lib/libastra${SHLIB_EXT}                          # [linux]
     - test -f $PREFIX/lib/libastra${SHLIB_EXT}.0                        # [linux]
     - test -f $PREFIX/lib/libastra${SHLIB_EXT}.0.0.0                    # [linux]
-    - "LD_LIBRARY_PATH=$PREFIX/lib:$LD_LIBRARY_PATH ./tests/astratest"  # [unix]
-    - if not exist %LIBRARY_LIB%\\AstraCuda64.lib exit 1  # [win]
-    - if not exist %LIBRARY_BIN%\\AstraCuda64.dll exit 1  # [win]
-    - tests\\astratest                                    # [win]
+    - "LD_LIBRARY_PATH=$PREFIX/lib:$LD_LIBRARY_PATH ./build/tests/astratest"  # [unix]
+    # Library named differently from upstream because it makes linking
+    # consistent between platforms. Links don't work on Windows.
+    - if not exist %LIBRARY_LIB%\\astra.lib exit 1  # [win]
+    - if not exist %LIBRARY_BIN%\\astra.dll exit 1  # [win]
+    - build\\tests\\astratest                                    # [win]
 
 about:
   home: http://www.astra-toolbox.com

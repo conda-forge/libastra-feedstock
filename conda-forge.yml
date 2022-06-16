@@ -1,4 +1,10 @@
 conda_forge_output_validation: true
-github:
-  branch_name: main
-  tooling_branch_name: main
+provider:
+  linux_ppc64le: azure  # succeeded on Travis
+  linux_aarch64: azure  # failed mysteriously on Travis
+azure:
+  # flag for forcing the building all supported providers
+  force: False
+  # toggle for storing the conda build_artifacts directory (including the
+  # built packages) as an Azure pipeline artifact that can be downloaded
+  store_build_artifacts: True
