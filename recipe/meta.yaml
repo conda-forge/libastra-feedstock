@@ -1,4 +1,5 @@
 {% set version = "2.1.0" %}
+{% set build = 5 %}
 
 package:
   name: libastra
@@ -17,8 +18,8 @@ build:
     - libastra =*=h*     # [cuda_compiler_version == "None"]
   ignore_run_exports_from:
     - {{ compiler('cxx') }}  # [win]
-  number: 4
-  string: "{{ "cuda" + cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ PKG_BUILDNUM }}"  # [cuda_compiler_version != "None"]
+  number: {{ build }}
+  string: "{{ "cuda" + cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ build + 100 }}"  # [cuda_compiler_version != "None"]
   skip: True  # [win and (cuda_compiler_version != "None")]
   script_env:
     - ASTRA_USE_CUDA=ON   # [cuda_compiler_version != "None"]
