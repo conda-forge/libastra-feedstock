@@ -1,5 +1,5 @@
 {% set version = "2.1.0" %}
-{% set build = 7 %}
+{% set build = 8 %}
 
 package:
   name: libastra
@@ -10,6 +10,7 @@ source:
   sha256: 7768863a2756887e54829725e8fe95a371c7cb0cdfa5392b2e11cfc290f54dc3
   patches:
     - cmake.patch
+    - find-cuda.patch
 
 build:
   track_features:
@@ -22,7 +23,6 @@ build:
     - {{ compiler('cxx') }}  # [win]
   number: {{ build }}
   string: "{{ "cuda" + cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ build + 100 }}"  # [cuda_compiler_version != "None"]
-  skip: True  # [win and (cuda_compiler_version != "None")]
   script_env:
     - ASTRA_USE_CUDA=ON   # [cuda_compiler_version != "None"]
     - ASTRA_USE_CUDA=OFF  # [cuda_compiler_version == "None"]
