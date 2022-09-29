@@ -33,7 +33,7 @@ requirements:
     - {{ compiler('cxx') }}
     # CMake policy max must be set to 3.22 for CMake to not autodetect architectures
     - cmake >=3.18
-    - ninja
+    - ninja  # [not win]
   host:
     - boost-cpp
     - cudatoolkit  # [cuda_compiler_version != "None"]

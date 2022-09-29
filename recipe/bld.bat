@@ -1,7 +1,8 @@
 cd .\build
 if errorlevel 1 exit /b 1
 
-cmake -GNinja^
+:: Conda-forge CUDA build environment does not work with Ninja
+cmake^
   -DBUILD_SHARED_LIBS:BOOL=ON^
   -DCMAKE_BUILD_TYPE=Release^
   -DCMAKE_INSTALL_PREFIX:PATH="%LIBRARY_PREFIX%"^
