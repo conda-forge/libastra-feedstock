@@ -19,8 +19,6 @@ build:
     - {{ pin_subpackage('libastra', max_pin='x.x.x') }}
     - libastra =*=cuda*  # [cuda_compiler_version != "None"]
     - libastra =*=h*     # [cuda_compiler_version == "None"]
-  ignore_run_exports_from:
-    - {{ compiler('cxx') }}  # [win]
   number: {{ build }}
   string: "{{ "cuda" + cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ build + 100 }}"  # [cuda_compiler_version != "None"]
   script_env:
