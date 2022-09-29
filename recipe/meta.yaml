@@ -1,5 +1,5 @@
 {% set version = "2.1.0" %}
-{% set build = 7 %}
+{% set build = 8 %}
 
 package:
   name: libastra
@@ -10,6 +10,7 @@ source:
   sha256: 7768863a2756887e54829725e8fe95a371c7cb0cdfa5392b2e11cfc290f54dc3
   patches:
     - cmake.patch
+    - find-cuda.patch
 
 build:
   track_features:
@@ -18,11 +19,8 @@ build:
     - {{ pin_subpackage('libastra', max_pin='x.x.x') }}
     - libastra =*=cuda*  # [cuda_compiler_version != "None"]
     - libastra =*=h*     # [cuda_compiler_version == "None"]
-  ignore_run_exports_from:
-    - {{ compiler('cxx') }}  # [win]
   number: {{ build }}
   string: "{{ "cuda" + cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ build + 100 }}"  # [cuda_compiler_version != "None"]
-  skip: True  # [win and (cuda_compiler_version != "None")]
   script_env:
     - ASTRA_USE_CUDA=ON   # [cuda_compiler_version != "None"]
     - ASTRA_USE_CUDA=OFF  # [cuda_compiler_version == "None"]
@@ -33,7 +31,7 @@ requirements:
     - {{ compiler('cxx') }}
     # CMake policy max must be set to 3.22 for CMake to not autodetect architectures
     - cmake >=3.18
-    - ninja
+    - ninja  # [not win]
   host:
     - boost-cpp
     - cudatoolkit  # [cuda_compiler_version != "None"]
@@ -48,17 +46,17 @@ test:
     - {{ pin_compatible('boost-cpp', max_pin='x.x') }}
   source_files:
     - build/tests/astratest  # [unix]
-    - build/tests/astratest.exe  # [win]
+    - build/tests/Release/astratest.exe  # [win]
   commands:
     - test -f $PREFIX/lib/libastra${SHLIB_EXT}                          # [linux]
     - test -f $PREFIX/lib/libastra${SHLIB_EXT}.0                        # [linux]
     - test -f $PREFIX/lib/libastra${SHLIB_EXT}.0.0.0                    # [linux]
     - "LD_LIBRARY_PATH=$PREFIX/lib:$LD_LIBRARY_PATH ./build/tests/astratest"  # [unix]
     # Library named differently from upstream because it makes linking
-    # consistent between platforms. Links don't work on Windows.
+    # consistent between platforms. File links don't work on Windows.
     - if not exist %LIBRARY_LIB%\\astra.lib exit 1  # [win]
     - if not exist %LIBRARY_BIN%\\astra.dll exit 1  # [win]
-    - build\\tests\\astratest                                    # [win]
+    - build\\tests\\Release\\astratest              # [win]
 
 about:
   home: http://www.astra-toolbox.com
