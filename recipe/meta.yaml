@@ -48,17 +48,17 @@ test:
     - {{ pin_compatible('boost-cpp', max_pin='x.x') }}
   source_files:
     - build/tests/astratest  # [unix]
-    - build/tests/astratest.exe  # [win]
+    - build/tests/Release/astratest.exe  # [win]
   commands:
     - test -f $PREFIX/lib/libastra${SHLIB_EXT}                          # [linux]
     - test -f $PREFIX/lib/libastra${SHLIB_EXT}.0                        # [linux]
     - test -f $PREFIX/lib/libastra${SHLIB_EXT}.0.0.0                    # [linux]
     - "LD_LIBRARY_PATH=$PREFIX/lib:$LD_LIBRARY_PATH ./build/tests/astratest"  # [unix]
     # Library named differently from upstream because it makes linking
-    # consistent between platforms. Links don't work on Windows.
+    # consistent between platforms. File links don't work on Windows.
     - if not exist %LIBRARY_LIB%\\astra.lib exit 1  # [win]
     - if not exist %LIBRARY_BIN%\\astra.dll exit 1  # [win]
-    - build\\tests\\astratest                                    # [win]
+    - build\\tests\\Release\\astratest              # [win]
 
 about:
   home: http://www.astra-toolbox.com
