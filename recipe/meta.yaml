@@ -27,6 +27,7 @@ build:
     - ASTRA_USE_CUDA=ON   # [cuda_compiler_version != "None"]
     - ASTRA_USE_CUDA=OFF  # [cuda_compiler_version == "None"]
     - CUDAARCHS=all
+    - CMAKE_GENERATOR=Ninja
 
 requirements:
   build:
@@ -34,7 +35,7 @@ requirements:
     - {{ compiler('cxx') }}
     # CMake policy max must be set to 3.22 for CMake to not autodetect architectures
     - cmake >=3.23
-    - ninja  # [not win]
+    - ninja
   host:
     - boost-cpp
 {% if cuda_major == 12 %}
