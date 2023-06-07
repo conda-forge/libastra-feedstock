@@ -1,6 +1,8 @@
 {% set version = "2.1.0" %}
 {% set build = 9 %}
 
+{% set cuda_major = environ.get("cuda_compiler_version", "11.2").split(".")[0]|int %}
+
 package:
   name: libastra
   version: {{ version }}
@@ -34,7 +36,10 @@ requirements:
     - ninja  # [not win]
   host:
     - boost-cpp
-    - cudatoolkit  # [cuda_compiler_version != "None"]
+{% if cuda_major == 12 %}
+    - cuda-cudart-dev
+    - libcufft-dev
+{% endif %}
   run:
     - __cuda  # [cuda_compiler_version != "None"]
   # unix uses pthread, but win links to libboost:threads
