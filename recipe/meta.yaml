@@ -26,13 +26,14 @@ build:
   script_env:
     - ASTRA_USE_CUDA=ON   # [cuda_compiler_version != "None"]
     - ASTRA_USE_CUDA=OFF  # [cuda_compiler_version == "None"]
+    - CUDAARCHS=all
 
 requirements:
   build:
     - {{ compiler('cuda') }}  # [cuda_compiler_version != "None"]
     - {{ compiler('cxx') }}
     # CMake policy max must be set to 3.22 for CMake to not autodetect architectures
-    - cmake >=3.18
+    - cmake >=3.23
     - ninja  # [not win]
   host:
     - boost-cpp
