@@ -7,6 +7,6 @@ cmake -GNinja \
   ${CMAKE_ARGS} \
   ${SRC_DIR}
 
-cmake --build .
+cmake --build . -v
 
 cmake --install .
