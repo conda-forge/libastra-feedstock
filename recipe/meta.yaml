@@ -1,5 +1,7 @@
 {% set version = "2.1.0" %}
-{% set build = 8 %}
+{% set build = 9 %}
+
+{% set cuda_major = environ.get("cuda_compiler_version", "11.2").split(".")[0]|int %}
 
 package:
   name: libastra
@@ -13,6 +15,8 @@ source:
     - find-cuda.patch
 
 build:
+# Current tagged release does not compile for CUDA 12. Fix probably with v2.1.3 or later
+  skip: true  # [cuda_compiler_version == "12.0"]
   track_features:
     - nocuda_la6JwwDGF7  # [cuda_compiler_version == "None"]
   run_exports:
@@ -24,17 +28,22 @@ build:
   script_env:
     - ASTRA_USE_CUDA=ON   # [cuda_compiler_version != "None"]
     - ASTRA_USE_CUDA=OFF  # [cuda_compiler_version == "None"]
+    - CUDAARCHS=all
+    - CMAKE_GENERATOR=Ninja
 
 requirements:
   build:
     - {{ compiler('cuda') }}  # [cuda_compiler_version != "None"]
     - {{ compiler('cxx') }}
     # CMake policy max must be set to 3.22 for CMake to not autodetect architectures
-    - cmake >=3.18
-    - ninja  # [not win]
+    - cmake >=3.23
+    - ninja
   host:
     - boost-cpp
-    - cudatoolkit  # [cuda_compiler_version != "None"]
+{% if cuda_major == 12 %}
+    - cuda-cudart-dev
+    - libcufft-dev
+{% endif %}
   run:
     - __cuda  # [cuda_compiler_version != "None"]
   # unix uses pthread, but win links to libboost:threads
@@ -46,7 +55,7 @@ test:
     - {{ pin_compatible('boost-cpp', max_pin='x.x') }}
   source_files:
     - build/tests/astratest  # [unix]
-    - build/tests/Release/astratest.exe  # [win]
+    - build/tests/astratest.exe  # [win]
   commands:
     - test -f $PREFIX/lib/libastra${SHLIB_EXT}                          # [linux]
     - test -f $PREFIX/lib/libastra${SHLIB_EXT}.0                        # [linux]
@@ -56,7 +65,7 @@ test:
     # consistent between platforms. File links don't work on Windows.
     - if not exist %LIBRARY_LIB%\\astra.lib exit 1  # [win]
     - if not exist %LIBRARY_BIN%\\astra.dll exit 1  # [win]
-    - build\\tests\\Release\\astratest              # [win]
+    - build\\tests\\astratest                       # [win]
 
 about:
   home: http://www.astra-toolbox.com

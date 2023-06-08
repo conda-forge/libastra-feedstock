@@ -1,7 +1,5 @@
 boost_cpp:
 - 1.78.0
-cdt_name:
-- cos7
 channel_sources:
 - conda-forge
 channel_targets:
@@ -11,18 +9,12 @@ cuda_compiler:
 cuda_compiler_version:
 - '11.0'
 cxx_compiler:
-- gxx
-cxx_compiler_version:
-- '9'
-docker_image:
-- quay.io/condaforge/linux-anvil-cuda:11.0
+- vs2019
 pin_run_as_build:
   boost-cpp:
     max_pin: x.x.x
 target_platform:
-- linux-64
+- win-64
 zip_keys:
-- - cxx_compiler_version
+- - cuda_compiler
   - cuda_compiler_version
-  - cdt_name
-  - docker_image
