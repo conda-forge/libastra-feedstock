@@ -1,5 +1,5 @@
 {% set version = "2.1.0" %}
-{% set build = 9 %}
+{% set build = 10 %}
 
 {% set cuda_major = environ.get("cuda_compiler_version", "11.2").split(".")[0]|int %}
 
