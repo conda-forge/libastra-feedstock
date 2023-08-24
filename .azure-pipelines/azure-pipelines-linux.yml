@@ -8,31 +8,16 @@ jobs:
     vmImage: ubuntu-latest
   strategy:
     matrix:
-      linux_64_cuda_compilerNonecuda_compiler_versionNonecxx_compiler_version12:
-        CONFIG: linux_64_cuda_compilerNonecuda_compiler_versionNonecxx_compiler_version12
-        UPLOAD_PACKAGES: 'True'
-        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
-        SHORT_CONFIG: linux_64_cuda_compilerNonecuda_comp_ha008911767
-      linux_64_cuda_compilernvcccuda_compiler_version10.2cxx_compiler_version7:
-        CONFIG: linux_64_cuda_compilernvcccuda_compiler_version10.2cxx_compiler_version7
-        UPLOAD_PACKAGES: 'True'
-        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-cuda:10.2
-        SHORT_CONFIG: linux_64_cuda_compilernvcccuda_comp_h8b230b497e
-      linux_64_cuda_compilernvcccuda_compiler_version11.0cxx_compiler_version9:
-        CONFIG: linux_64_cuda_compilernvcccuda_compiler_version11.0cxx_compiler_version9
-        UPLOAD_PACKAGES: 'True'
-        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cuda:11.0
-        SHORT_CONFIG: linux_64_cuda_compilernvcccuda_comp_h43fec5b733
-      linux_64_cuda_compilernvcccuda_compiler_version11.1cxx_compiler_version10:
-        CONFIG: linux_64_cuda_compilernvcccuda_compiler_version11.1cxx_compiler_version10
-        UPLOAD_PACKAGES: 'True'
-        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cuda:11.1
-        SHORT_CONFIG: linux_64_cuda_compilernvcccuda_comp_h831ab6e840
-      linux_64_cuda_compilernvcccuda_compiler_version11.2cxx_compiler_version10:
-        CONFIG: linux_64_cuda_compilernvcccuda_compiler_version11.2cxx_compiler_version10
+      linux_64_cuda_compiler_version11.2cxx_compiler_version10:
+        CONFIG: linux_64_cuda_compiler_version11.2cxx_compiler_version10
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cuda:11.2
-        SHORT_CONFIG: linux_64_cuda_compilernvcccuda_comp_ha4311993d9
+        SHORT_CONFIG: linux_64_cuda_compiler_version11.2c_h0f722a43c2
+      linux_64_cuda_compiler_versionNonecxx_compiler_version12:
+        CONFIG: linux_64_cuda_compiler_versionNonecxx_compiler_version12
+        UPLOAD_PACKAGES: 'True'
+        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-cos7-x86_64
+        SHORT_CONFIG: linux_64_cuda_compiler_versionNonec_h71875e6dc5
       linux_aarch64_cuda_compilerNonecuda_compiler_versionNonecxx_compiler_version12:
         CONFIG: linux_aarch64_cuda_compilerNonecuda_compiler_versionNonecxx_compiler_version12
         UPLOAD_PACKAGES: 'True'
@@ -56,11 +41,6 @@ jobs:
   timeoutInMinutes: 360
 
   steps:
-  - script: |
-         rm -rf /opt/ghc
-         df -h
-    displayName: Manage disk space
-
   # configure qemu binfmt-misc running.  This allows us to run docker containers
   # embedded qemu-static
   - script: |
