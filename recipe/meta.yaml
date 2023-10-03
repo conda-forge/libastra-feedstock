@@ -24,6 +24,9 @@ build:
     - {{ pin_subpackage('libastra', max_pin='x.x.x') }}
     - libastra =*=cuda*  # [cuda_compiler_version != "None"]
     - libastra =*=h*     # [cuda_compiler_version == "None"]
+  ignore_run_exports_from:
+    # unix uses pthread, but win links to libboost:threads
+    - libboost-devel  # [unix]
   number: {{ build }}
   string: "{{ "cuda" + cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ build + 100 }}"  # [cuda_compiler_version != "None"]
   script_env:
@@ -40,6 +43,7 @@ requirements:
     - cmake >=3.23
     - ninja
   host:
+    # unix doesn't link, but needs CMake metadata at build time
     - libboost-devel
 {% if cuda_major == 12 %}
     - cuda-cudart-dev
@@ -47,11 +51,11 @@ requirements:
 {% endif %}
   run:
     - __cuda  # [cuda_compiler_version != "None"]
-  # unix uses pthread, but win links to libboost:threads
 
 test:
   requires:
   # libastra uses header-only from Boost, but the unit tests actually link to libboost_unit_test_framework.so
+    - libboost
   source_files:
     - build/tests/astratest  # [unix]
     - build/tests/astratest.exe  # [win]
