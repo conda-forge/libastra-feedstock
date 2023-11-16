@@ -38,21 +38,21 @@ jobs:
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-aarch64
         SHORT_CONFIG: linux_aarch64_cuda_compiler_version_hda980ac947
-      linux_ppc64le_cuda_compiler_version11.2cxx_compiler_version10:
-        CONFIG: linux_ppc64le_cuda_compiler_version11.2cxx_compiler_version10
-        UPLOAD_PACKAGES: 'True'
-        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-ppc64le-cuda:11.2
-        SHORT_CONFIG: linux_ppc64le_cuda_compiler_version_h30d188586d
-      linux_ppc64le_cuda_compiler_version11.8cxx_compiler_version11:
-        CONFIG: linux_ppc64le_cuda_compiler_version11.8cxx_compiler_version11
-        UPLOAD_PACKAGES: 'True'
-        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-ppc64le-cuda:11.8
-        SHORT_CONFIG: linux_ppc64le_cuda_compiler_version_h31d3e5b3cc
-      linux_ppc64le_cuda_compiler_versionNonecxx_compiler_version12:
-        CONFIG: linux_ppc64le_cuda_compiler_versionNonecxx_compiler_version12
+      linux_ppc64le_cuda_compilerNonecuda_compiler_versionNonecxx_compiler_version12:
+        CONFIG: linux_ppc64le_cuda_compilerNonecuda_compiler_versionNonecxx_compiler_version12
         UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: quay.io/condaforge/linux-anvil-ppc64le
-        SHORT_CONFIG: linux_ppc64le_cuda_compiler_version_h596477b5fe
+        SHORT_CONFIG: linux_ppc64le_cuda_compilerNonecuda_h1c24c05a8b
+      linux_ppc64le_cuda_compilernvcccuda_compiler_version11.2cxx_compiler_version10:
+        CONFIG: linux_ppc64le_cuda_compilernvcccuda_compiler_version11.2cxx_compiler_version10
+        UPLOAD_PACKAGES: 'True'
+        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-ppc64le-cuda:11.2
+        SHORT_CONFIG: linux_ppc64le_cuda_compilernvcccuda_h15c9e2d659
+      linux_ppc64le_cuda_compilernvcccuda_compiler_version11.8cxx_compiler_version11:
+        CONFIG: linux_ppc64le_cuda_compilernvcccuda_compiler_version11.8cxx_compiler_version11
+        UPLOAD_PACKAGES: 'True'
+        DOCKER_IMAGE: quay.io/condaforge/linux-anvil-ppc64le-cuda:11.8
+        SHORT_CONFIG: linux_ppc64le_cuda_compilernvcccuda_ha5210776c4
   timeoutInMinutes: 360
 
   steps:
@@ -66,6 +66,9 @@ jobs:
 
   - script: |
         export CI=azure
+        export flow_run_id=azure_$(Build.BuildNumber).$(System.JobAttempt)
+        export remote_url=$(Build.Repository.Uri)
+        export sha=$(Build.SourceVersion)
         export GIT_BRANCH=$BUILD_SOURCEBRANCHNAME
         export FEEDSTOCK_NAME=$(basename ${BUILD_REPOSITORY_NAME})
         if [[ "${BUILD_REASON:-}" == "PullRequest" ]]; then
