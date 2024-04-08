@@ -1,6 +1,6 @@
 {% set version = "2.1.2" %}
 {% set commit = "a78e72fa77c314ad17fd3ab0926d03fd3af31471" %}
-{% set build = 1 %}
+{% set build_number = 2 %}
 
 {% set cuda_major = environ.get("cuda_compiler_version", "11.2").split(".")[0]|int %}
 
@@ -28,8 +28,8 @@ build:
   ignore_run_exports_from:
     # unix uses pthread, but win links to libboost:threads
     - libboost-devel  # [unix]
-  number: {{ build }}
-  string: "{{ "cuda" + cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ build + 100 }}"  # [cuda_compiler_version != "None"]
+  number: {{ build_number }}
+  string: "{{ "cuda" + cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ build_number + 100 }}"  # [cuda_compiler_version != "None"]
   script_env:
     - ASTRA_USE_CUDA=ON   # [cuda_compiler_version != "None"]
     - ASTRA_USE_CUDA=OFF  # [cuda_compiler_version == "None"]
