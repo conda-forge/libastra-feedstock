@@ -1,13 +1,15 @@
 c_stdlib:
 - vs
+c_stdlib_version:
+- '2019'
 channel_sources:
 - conda-forge
 channel_targets:
 - conda-forge main
 cuda_compiler:
-- nvcc
+- None
 cuda_compiler_version:
-- '11.8'
+- None
 cxx_compiler:
 - vs2019
 libboost_devel:
