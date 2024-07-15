@@ -181,7 +181,7 @@ index 0000000..bf50669
 +)
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
 new file mode 100644
-index 0000000..258b179
+index 0000000..0be03ee
 --- /dev/null
 +++ b/src/CMakeLists.txt
 @@ -0,0 +1,180 @@
@@ -353,7 +353,7 @@ index 0000000..258b179
 +    PUBLIC
 +    ${ASTRA_CUDA_INCLUDES})
 +
-+  # ASTRA_CUDA enables CUDA poritions of code
++  # ASTRA_CUDA enables CUDA portions of code
 +  target_compile_definitions(
 +    astra
 +    PUBLIC
@@ -382,7 +382,7 @@ index 5b19eb5..255747b 100644
  
 diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
 new file mode 100644
-index 0000000..347e065
+index 0000000..939a353
 --- /dev/null
 +++ b/tests/CMakeLists.txt
 @@ -0,0 +1,28 @@
@@ -391,7 +391,7 @@ index 0000000..347e065
 +set(Boost_USE_STATIC_LIBS OFF)
 +set(Boost_USE_MULTITHREADED ON)
 +set(Boost_USE_STATIC_RUNTIME OFF)
-+find_package(Boost 1.71 REQUIRED COMPONENTS unit_test_framework)
++find_package(Boost 1.71 CONFIG REQUIRED COMPONENTS unit_test_framework)
 +
 +# Collect source and header files --------------------------------------------
 +
