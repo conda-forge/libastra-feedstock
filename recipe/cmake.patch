@@ -1,18 +1,21 @@
 diff --git a/.gitignore b/.gitignore
-index b203e2a..18064e3 100644
+index d3aa573..bbd99d2 100644
 --- a/.gitignore
 +++ b/.gitignore
-@@ -37,3 +37,4 @@ __pycache__
- /build/linux/ltmain.sh
+@@ -43,6 +43,7 @@ __pycache__
  /build/linux/src/*
  /build/linux/matlab/*
+ /build/linux/python/*
 +/build/cmake*
+ 
+ # MSVC build output
+ /bin/
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 new file mode 100644
-index 0000000..642d555
+index 0000000..d8aa7f1
 --- /dev/null
 +++ b/CMakeLists.txt
-@@ -0,0 +1,44 @@
+@@ -0,0 +1,45 @@
 +# 3.11.0 is from scikit-build documentation 3.18.0 is required for
 +# CUDA_ARCHITECTURES property
 +cmake_minimum_required(VERSION 3.18.0)
@@ -24,7 +27,7 @@ index 0000000..642d555
 +
 +project(
 +  astra-toolbox
-+  VERSION 2.1.0
++  VERSION 2.2.0
 +  DESCRIPTION
 +    "a MATLAB and Python toolbox of high-performance GPU primitives for 2D and 3D tomography."
 +  LANGUAGES CXX)
@@ -33,6 +36,7 @@ index 0000000..642d555
 +
 +if(ASTRA_USE_CUDA)
 +  enable_language(CUDA)
++  find_package(CUDAToolkit REQUIRED COMPONENTS cudart cufft)
 +endif()
 +
 +add_subdirectory(src)
@@ -67,7 +71,7 @@ index 0000000..148adaf
 +requires = ["setuptools ~= 58.0", "wheel", "cython >= 0.13", "numpy"]
 diff --git a/python/setup.py b/python/setup.py
 new file mode 100644
-index 0000000..f1ed06f
+index 0000000..bf50669
 --- /dev/null
 +++ b/python/setup.py
 @@ -0,0 +1,104 @@
@@ -157,7 +161,7 @@ index 0000000..f1ed06f
 +
 +setup(
 +    name='astra-toolbox',
-+    version='2.1.0',
++    version='2.2.0',
 +    description='Python interface to the ASTRA Toolbox',
 +    author='D.M. Pelt',
 +    author_email='D.M.Pelt@cwi.nl',
@@ -177,10 +181,10 @@ index 0000000..f1ed06f
 +)
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
 new file mode 100644
-index 0000000..0e85b9d
+index 0000000..c9ddb33
 --- /dev/null
 +++ b/src/CMakeLists.txt
-@@ -0,0 +1,218 @@
+@@ -0,0 +1,180 @@
 +# Find libboost components ---------------------------------------------------
 +
 +set(Boost_USE_STATIC_LIBS OFF)
@@ -191,9 +195,6 @@ index 0000000..0e85b9d
 +# Collect source and header files --------------------------------------------
 +set(ASTRA_SOURCES
 +    Algorithm.cpp
-+    AsyncAlgorithm.cpp
-+    ReconstructionAlgorithm2D.cpp
-+    ReconstructionAlgorithm3D.cpp
 +    ArtAlgorithm.cpp
 +    AstraObjectFactory.cpp
 +    AstraObjectManager.cpp
@@ -212,10 +213,10 @@ index 0000000..0e85b9d
 +    Features.cpp
 +    FilteredBackProjectionAlgorithm.cpp
 +    Filters.cpp
++    Float32Data.cpp
 +    Float32Data2D.cpp
 +    Float32Data3D.cpp
 +    Float32Data3DMemory.cpp
-+    Float32Data.cpp
 +    Float32ProjectionData2D.cpp
 +    Float32ProjectionData3D.cpp
 +    Float32ProjectionData3DMemory.cpp
@@ -234,8 +235,8 @@ index 0000000..0e85b9d
 +    ParallelBeamLineKernelProjector2D.cpp
 +    ParallelBeamStripKernelProjector2D.cpp
 +    ParallelProjectionGeometry2D.cpp
-+    ParallelVecProjectionGeometry2D.cpp
 +    ParallelProjectionGeometry3D.cpp
++    ParallelVecProjectionGeometry2D.cpp
 +    ParallelVecProjectionGeometry3D.cpp
 +    PlatformDepSystemCode.cpp
 +    PluginAlgorithmFactory.cpp
@@ -243,11 +244,14 @@ index 0000000..0e85b9d
 +    ProjectionGeometry3D.cpp
 +    Projector2D.cpp
 +    Projector3D.cpp
++    ReconstructionAlgorithm2D.cpp
++    ReconstructionAlgorithm3D.cpp
 +    SartAlgorithm.cpp
++    SheppLogan.cpp
 +    SirtAlgorithm.cpp
++    SparseMatrix.cpp
 +    SparseMatrixProjectionGeometry2D.cpp
 +    SparseMatrixProjector2D.cpp
-+    SparseMatrix.cpp
 +    Utilities.cpp
 +    VolumeGeometry2D.cpp
 +    VolumeGeometry3D.cpp
@@ -338,44 +342,6 @@ index 0000000..0e85b9d
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/mem3d.cu")
 +
 +  set(ASTRA_CUDA_INCLUDES ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
-+
-+  # Set CUDA target architectures --------------------------------------------
-+
-+  if(NOT DEFINED ENV{CUDAARCHS})
-+    set(CMAKE_CUDA_ARCHITECTURES "")
-+    if((CMAKE_CUDA_COMPILER_VERSION VERSION_GREATER_EQUAL 5)
-+       AND (CMAKE_CUDA_COMPILER_VERSION VERSION_LESS 11))
-+      list(APPEND CMAKE_CUDA_ARCHITECTURES "30;32")
-+    endif()
-+    if((CMAKE_CUDA_COMPILER_VERSION VERSION_GREATER_EQUAL 5)
-+       AND (CMAKE_CUDA_COMPILER_VERSION VERSION_LESS 12))
-+      list(APPEND CMAKE_CUDA_ARCHITECTURES "35;37")
-+    endif()
-+    if((CMAKE_CUDA_COMPILER_VERSION VERSION_GREATER_EQUAL 6)
-+       AND (CMAKE_CUDA_COMPILER_VERSION VERSION_LESS 12))
-+      list(APPEND CMAKE_CUDA_ARCHITECTURES "50;52;53")
-+    endif()
-+    if(CMAKE_CUDA_COMPILER_VERSION VERSION_GREATER_EQUAL 8)
-+      list(APPEND CMAKE_CUDA_ARCHITECTURES "60;61;62")
-+    endif()
-+    if(CMAKE_CUDA_COMPILER_VERSION VERSION_GREATER_EQUAL 9)
-+      list(APPEND CMAKE_CUDA_ARCHITECTURES "70;72")
-+    endif()
-+    if(CMAKE_CUDA_COMPILER_VERSION VERSION_GREATER_EQUAL 10)
-+      list(APPEND CMAKE_CUDA_ARCHITECTURES "75")
-+    endif()
-+    if(CMAKE_CUDA_COMPILER_VERSION VERSION_GREATER_EQUAL 11.1)
-+      list(APPEND CMAKE_CUDA_ARCHITECTURES "80;86")
-+    endif()
-+  endif()
-+
-+  message(
-+    STATUS
-+      "CUDA ${CMAKE_CUDA_COMPILER_VERSION} built for archs ${CMAKE_CUDA_ARCHITECTURES}"
-+  )
-+
-+  set_property(TARGET astra PROPERTY CUDA_ARCHITECTURES
-+                                     ${CMAKE_CUDA_ARCHITECTURES})
 +
 +  set_property(
 +    TARGET astra
