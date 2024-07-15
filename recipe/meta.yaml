@@ -57,7 +57,7 @@ test:
   # libastra uses header-only from Boost, but the unit tests actually link to
   # libboost_unit_test_framework.so. We need to specify the version because we
   # are ignoring the run_exports
-    - libboost-devel 1.84.*
+    - libboost 1.84.*
   source_files:
     - build/tests/astratest  # [unix]
     - build/tests/astratest.exe  # [win]
@@ -65,7 +65,7 @@ test:
     - test -f $PREFIX/lib/libastra${SHLIB_EXT}                          # [linux]
     - test -f $PREFIX/lib/libastra${SHLIB_EXT}.0                        # [linux]
     - test -f $PREFIX/lib/libastra${SHLIB_EXT}.0.0.0                    # [linux]
-    - "LD_LIBRARY_PATH=$PREFIX/lib:$LD_LIBRARY_PATH ./build/tests/astratest"  # [unix]
+    - "LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH ./build/tests/astratest"  # [unix]
     # Library named differently from upstream because it makes linking
     # consistent between platforms. File links don't work on Windows.
     - if not exist %LIBRARY_LIB%\\astra.lib exit 1  # [win]
