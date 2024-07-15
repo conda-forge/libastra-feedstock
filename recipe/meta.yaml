@@ -12,6 +12,7 @@ source:
   url: https://github.com/astra-toolbox/astra-toolbox/archive/{{ commit }}.tar.gz
   sha256: 7e4d6ed947a08d2fcee648f8620f7dd48cf980b7ad0b2838964d1a78a4646679
   patches:
+  # patch created from tomopy/astra-toolbox
     - cmake.patch
 
 build:
@@ -42,6 +43,7 @@ requirements:
     - cmake >=3.23
     - ninja
   host:
+    - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
     # unix doesn't link, but needs CMake metadata at build time
     - libboost-devel
 {% if cuda_major == 12 %}
@@ -53,8 +55,10 @@ requirements:
 
 test:
   requires:
-  # libastra uses header-only from Boost, but the unit tests actually link to libboost_unit_test_framework.so
-    - libboost-devel
+  # libastra uses header-only from Boost, but the unit tests actually link to
+  # libboost_unit_test_framework.so. We need to specify the version because we
+  # are ignoring the run_exports
+    - libboost 1.84
   source_files:
     - build/tests/astratest  # [unix]
     - build/tests/astratest.exe  # [win]
