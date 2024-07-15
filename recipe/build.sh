@@ -9,4 +9,4 @@ cmake -GNinja \
 
 cmake --build . -v
 
-cmake --install .
+cmake --install . --strip
