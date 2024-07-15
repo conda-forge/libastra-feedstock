@@ -181,10 +181,10 @@ index 0000000..bf50669
 +)
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
 new file mode 100644
-index 0000000..0be03ee
+index 0000000..2cddb53
 --- /dev/null
 +++ b/src/CMakeLists.txt
-@@ -0,0 +1,180 @@
+@@ -0,0 +1,185 @@
 +# Find libboost components ---------------------------------------------------
 +
 +set(Boost_USE_STATIC_LIBS OFF)
@@ -274,16 +274,21 @@ index 0000000..0be03ee
 +set_target_properties(
 +  astra
 +  PROPERTIES POSITION_INDEPENDENT_CODE ON
-+             # DLL_EXPORTS marks functions as for external use (shared library)
-+             # on Windows
-+             # __SSE2__ enables Streaming SIMD Extensions 2 where available
-+             COMPILE_DEFINITIONS "DLL_EXPORTS;__SSE2__"
 +             COMPILE_FEATURES cxx_std_11
 +             INCLUDE_DIRECTORIES "${ASTRA_INCLUDES}"
 +             LINK_LIBRARIES Boost::thread
 +             VERSION 0.0.0
 +             SOVERSION 0
 +             OUTPUT_NAME "${OUTPUT_NAME}")
++
++if(MSVC OR WIN32)
++  # DLL_EXPORTS marks functions as for external use (shared library) on Windows
++  target_compile_definitions(
++    astra
++    PRIVATE
++    "DLL_EXPORTS"
++  )
++endif(MSVC OR WIN32)
 +
 +if(ASTRA_USE_CUDA)
 +
