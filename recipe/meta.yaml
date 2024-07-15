@@ -57,7 +57,7 @@ test:
   # libastra uses header-only from Boost, but the unit tests actually link to
   # libboost_unit_test_framework.so. We need to specify the version because we
   # are ignoring the run_exports
-    - libboost 1.84
+    - libboost-devel 1.84.*
   source_files:
     - build/tests/astratest  # [unix]
     - build/tests/astratest.exe  # [win]
