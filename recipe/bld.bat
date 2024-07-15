@@ -26,5 +26,5 @@ if errorlevel 1 exit /b 1
 cmake --build . --config Release
 if errorlevel 1 exit /b 1
 
-cmake --install .
+cmake --install . --strip
 if errorlevel 1 exit /b 1
