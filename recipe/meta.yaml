@@ -1,6 +1,6 @@
 {% set version = "2.2.0" %}
 {% set commit = "acbb899c4888c35d80c590f6f2ce8429e34f16b5" %}
-{% set build_number = 0 %}
+{% set build_number = 1 %}
 
 {% set cuda_major = environ.get("cuda_compiler_version", "11.2").split(".")[0]|int %}
 
@@ -57,7 +57,7 @@ test:
   # libastra uses header-only from Boost, but the unit tests actually link to
   # libboost_unit_test_framework.so. We need to specify the version because we
   # are ignoring the run_exports
-    - libboost 1.84.*
+    - libboost 1.86.*
   source_files:
     - build/tests/astratest  # [unix]
     - build/tests/astratest.exe  # [win]
