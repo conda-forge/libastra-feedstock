@@ -1,6 +1,6 @@
 {% set version = "2.2.0" %}
 {% set commit = "acbb899c4888c35d80c590f6f2ce8429e34f16b5" %}
-{% set build_number = 1 %}
+{% set build_number = 2 %}
 
 {% set cuda_major = environ.get("cuda_compiler_version", "11.2").split(".")[0]|int %}
 
