@@ -16,6 +16,7 @@ source:
     - cmake.patch
 
 build:
+  skip: true  # [not win]
   track_features:
     - nocuda_la6JwwDGF7  # [cuda_compiler_version == "None"]
   run_exports:
