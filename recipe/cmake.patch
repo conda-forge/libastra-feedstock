@@ -61,6 +61,34 @@ index 00000000..d2403379
 +  NAMESPACE "astra::"
 +  DESTINATION "lib/cmake/astra")
 +
+diff --git a/include/astra/Data3D.h b/include/astra/Data3D.h
+index 9178cb5d..d6761b3b 100644
+--- a/include/astra/Data3D.h
++++ b/include/astra/Data3D.h
+@@ -174,10 +174,6 @@ public:
+ 
+ #endif
+ 
+-template class CDataMemory<float32>;
+-template class CData3DObject<CProjectionGeometry3D>;
+-template class CData3DObject<CVolumeGeometry3D>;
+-
+ // Utility functions that create CDataMemory and Data3D objects together
+ _AstraExport CFloat32ProjectionData3D *createCFloat32ProjectionData3DMemory(const CProjectionGeometry3D &geom);
+ _AstraExport CFloat32ProjectionData3D *createCFloat32ProjectionData3DMemory(std::unique_ptr<CProjectionGeometry3D> &&geom);
+diff --git a/include/astra/Float32Data2D.h b/include/astra/Float32Data2D.h
+index 8b6b46fe..eff27b5c 100644
+--- a/include/astra/Float32Data2D.h
++++ b/include/astra/Float32Data2D.h
+@@ -40,8 +40,6 @@ public:
+ 	T* m_fPtr;
+ };
+ 
+-template class CCustomMemory<float32>;
+-
+ typedef CCustomMemory<float32> CFloat32CustomMemory;
+ 
+ /** 
 diff --git a/python/builder.py b/python/builder.py
 deleted file mode 100644
 index db51f55c..00000000
@@ -551,6 +579,32 @@ index 00000000..72729e9b
 +    CUDA::cufft CUDA::cudart)
 +
 +endif()
+diff --git a/src/Data3D.cpp b/src/Data3D.cpp
+index fa5553d3..d6e40407 100644
+--- a/src/Data3D.cpp
++++ b/src/Data3D.cpp
+@@ -107,5 +107,8 @@ CFloat32VolumeData3D *createCFloat32VolumeData3DMemory(std::unique_ptr<CVolumeGe
+ 	return new CFloat32VolumeData3D(std::move(geom), storage);
+ }
+ 
++template class CDataMemory<float32>;
++template class CData3DObject<CProjectionGeometry3D>;
++template class CData3DObject<CVolumeGeometry3D>;
+ 
+ }
+diff --git a/src/Float32Data2D.cpp b/src/Float32Data2D.cpp
+index b085e4bc..fe1f2175 100644
+--- a/src/Float32Data2D.cpp
++++ b/src/Float32Data2D.cpp
+@@ -590,7 +590,6 @@ std::string CFloat32Data2D::description() const
+ 	return res.str();
+ }
+ 
+-
+-
++template class CCustomMemory<float32>;
+ 
+ } // end namespace astra
 diff --git a/src/Globals.cpp b/src/Globals.cpp
 index 5b19eb5a..255747be 100644
 --- a/src/Globals.cpp
