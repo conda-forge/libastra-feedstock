@@ -1,5 +1,4 @@
 :: Clean up build config files from upstream
-del astra_vc14*
 rmdir /s /q build
 mkdir build
 cd build
