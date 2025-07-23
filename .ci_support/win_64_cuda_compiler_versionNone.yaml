@@ -11,6 +11,6 @@ cuda_compiler_version:
 cxx_compiler:
 - vs2022
 libboost_devel:
-- '1.86'
+- '1.88'
 target_platform:
 - win-64
