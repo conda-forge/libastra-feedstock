@@ -53,8 +53,8 @@ requirements:
 
 test:
   requires:
-    # Need to specify the version because we are ignoring the run_exports
-    - libboost 1.86.*
+    # Need to pin the version manually because we are ignoring the run_exports
+    - {{ pin_compatible('libboost', min_pin='x.x', max_pin='x.x') }}
   source_files:
     - build/tests/astratest  # [unix]
     - build/tests/astratest.exe  # [win]
