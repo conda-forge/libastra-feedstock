@@ -11,7 +11,7 @@ channel_targets:
 cuda_compiler:
 - cuda-nvcc
 cuda_compiler_version:
-- '12.9'
+- None
 cxx_compiler:
 - gxx
 cxx_compiler_version:
@@ -21,7 +21,8 @@ docker_image:
 libboost_devel:
 - '1.88'
 target_platform:
-- linux-aarch64
+- linux-64
 zip_keys:
 - - cxx_compiler_version
+  - c_stdlib_version
   - cuda_compiler_version
