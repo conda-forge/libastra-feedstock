@@ -42,8 +42,8 @@ requirements:
     - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
     # Unit tests link to libboost_unit_test_framework.so
     - libboost-devel
-    - cuda-cudart-dev
-    - libcufft-dev
+    - cuda-cudart-dev  # [cuda_compiler_version != "None"]
+    - libcufft-dev  # [cuda_compiler_version != "None"]
   run:
     - __cuda  # [cuda_compiler_version != "None"]
 
