@@ -5,11 +5,9 @@ c_stdlib_version:
 cdt_name:
 - conda
 channel_sources:
-- conda-forge
+- conda-forge/label/cuda130_dev,conda-forge
 channel_targets:
-- conda-forge main
-cuda_compiler:
-- cuda-nvcc
+- conda-forge cuda130_dev
 cuda_compiler_version:
 - None
 cxx_compiler:
