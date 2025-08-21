@@ -1,13 +1,13 @@
 c_stdlib:
 - vs
 channel_sources:
-- conda-forge
+- conda-forge/label/cuda130_dev,conda-forge
 channel_targets:
-- conda-forge main
+- conda-forge cuda130_dev
 cuda_compiler:
 - cuda-nvcc
 cuda_compiler_version:
-- '12.9'
+- '13.0'
 cxx_compiler:
 - vs2022
 libboost_devel:

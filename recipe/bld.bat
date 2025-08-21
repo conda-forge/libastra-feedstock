@@ -19,11 +19,12 @@ cmake^
   -DCMAKE_INSTALL_PREFIX:PATH="%LIBRARY_PREFIX%"^
   -DASTRA_USE_CUDA:BOOL=%ASTRA_USE_CUDA%^
   %CMAKE_ARGS%^
+  --log-level=DEBUG^
   %SRC_DIR%
 if errorlevel 1 exit /b 1
 
-cmake --build . --config Release
+cmake --build . --config Release --verbose
 if errorlevel 1 exit /b 1
 
-cmake --install . --strip
+cmake --install . --strip --verbose
 if errorlevel 1 exit /b 1

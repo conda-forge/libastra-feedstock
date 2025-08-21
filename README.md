@@ -27,45 +27,52 @@ Current build status
         <table>
           <thead><tr><th>Variant</th><th>Status</th></tr></thead>
           <tbody><tr>
-              <td>linux_64_cuda_compiler_version12.9</td>
+              <td>linux_64_c_stdlib_version2.17cuda_compiler_version12.6cxx_compiler_version13</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=13286&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/libastra-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_cuda_compiler_version12.9" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/libastra-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_c_stdlib_version2.17cuda_compiler_version12.6cxx_compiler_version13" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_cuda_compiler_versionNone</td>
+              <td>linux_64_c_stdlib_version2.17cuda_compiler_versionNonecxx_compiler_version14</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=13286&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/libastra-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_cuda_compiler_versionNone" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/libastra-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_c_stdlib_version2.17cuda_compiler_versionNonecxx_compiler_version14" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_aarch64_cuda_compiler_version12.9</td>
+              <td>linux_64_c_stdlib_version2.28cuda_compiler_version13.0cxx_compiler_version14</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=13286&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/libastra-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_cuda_compiler_version12.9" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/libastra-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_c_stdlib_version2.28cuda_compiler_version13.0cxx_compiler_version14" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_aarch64_cuda_compiler_versionNone</td>
+              <td>linux_aarch64_c_stdlib_version2.17cuda_compiler_version12.6cxx_compiler_version13</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=13286&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/libastra-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_cuda_compiler_versionNone" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/libastra-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_c_stdlib_version2.17cuda_compiler_version12.6cxx_compiler_version13" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_ppc64le_cuda_compiler_version12.4cxx_compiler_version12</td>
+              <td>linux_aarch64_c_stdlib_version2.17cuda_compiler_versionNonecxx_compiler_version14</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=13286&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/libastra-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_ppc64le_cuda_compiler_version12.4cxx_compiler_version12" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/libastra-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_c_stdlib_version2.17cuda_compiler_versionNonecxx_compiler_version14" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_ppc64le_cuda_compiler_versionNonecxx_compiler_version14</td>
+              <td>linux_aarch64_c_stdlib_version2.28cuda_compiler_version13.0cxx_compiler_version14</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=13286&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/libastra-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_ppc64le_cuda_compiler_versionNonecxx_compiler_version14" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/libastra-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_c_stdlib_version2.28cuda_compiler_version13.0cxx_compiler_version14" alt="variant">
+                </a>
+              </td>
+            </tr><tr>
+              <td>linux_ppc64le</td>
+              <td>
+                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=13286&branchName=main">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/libastra-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_ppc64le_" alt="variant">
                 </a>
               </td>
             </tr><tr>
@@ -83,10 +90,17 @@ Current build status
                 </a>
               </td>
             </tr><tr>
-              <td>win_64_cuda_compiler_version12.9</td>
+              <td>win_64_cuda_compiler_version12.6</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=13286&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/libastra-feedstock?branchName=main&jobName=win&configuration=win%20win_64_cuda_compiler_version12.9" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/libastra-feedstock?branchName=main&jobName=win&configuration=win%20win_64_cuda_compiler_version12.6" alt="variant">
+                </a>
+              </td>
+            </tr><tr>
+              <td>win_64_cuda_compiler_version13.0</td>
+              <td>
+                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=13286&branchName=main">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/libastra-feedstock?branchName=main&jobName=win&configuration=win%20win_64_cuda_compiler_version13.0" alt="variant">
                 </a>
               </td>
             </tr><tr>
@@ -114,14 +128,14 @@ Current release info
 Installing libastra
 ===================
 
-Installing `libastra` from the `conda-forge` channel can be achieved by adding `conda-forge` to your channels with:
+Installing `libastra` from the `conda-forge/label/cuda130_dev` channel can be achieved by adding `conda-forge/label/cuda130_dev` to your channels with:
 
 ```
-conda config --add channels conda-forge
+conda config --add channels conda-forge/label/cuda130_dev
 conda config --set channel_priority strict
 ```
 
-Once the `conda-forge` channel has been enabled, `libastra` can be installed with `conda`:
+Once the `conda-forge/label/cuda130_dev` channel has been enabled, `libastra` can be installed with `conda`:
 
 ```
 conda install libastra
@@ -136,26 +150,26 @@ mamba install libastra
 It is possible to list all of the versions of `libastra` available on your platform with `conda`:
 
 ```
-conda search libastra --channel conda-forge
+conda search libastra --channel conda-forge/label/cuda130_dev
 ```
 
 or with `mamba`:
 
 ```
-mamba search libastra --channel conda-forge
+mamba search libastra --channel conda-forge/label/cuda130_dev
 ```
 
 Alternatively, `mamba repoquery` may provide more information:
 
 ```
 # Search all versions available on your platform:
-mamba repoquery search libastra --channel conda-forge
+mamba repoquery search libastra --channel conda-forge/label/cuda130_dev
 
 # List packages depending on `libastra`:
-mamba repoquery whoneeds libastra --channel conda-forge
+mamba repoquery whoneeds libastra --channel conda-forge/label/cuda130_dev
 
 # List dependencies of `libastra`:
-mamba repoquery depends libastra --channel conda-forge
+mamba repoquery depends libastra --channel conda-forge/label/cuda130_dev
 ```
 
 
