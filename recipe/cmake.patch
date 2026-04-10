@@ -1,11 +1,12 @@
 diff --git a/.gitignore b/.gitignore
-index ab7fff6b..cb32ffe1 100644
+index 6996de71..cb32ffe1 100644
 --- a/.gitignore
 +++ b/.gitignore
-@@ -40,6 +40,7 @@ __pycache__
+@@ -40,7 +40,7 @@ __pycache__
  /build/linux/src/*
  /build/linux/matlab/*
  /build/linux/python/*
+-/build/linux/*-stamp
 +/build/cmake*
  
  # MSVC build output
@@ -61,116 +62,112 @@ index 00000000..d2403379
 +  NAMESPACE "astra::"
 +  DESTINATION "lib/cmake/astra")
 +
-diff --git a/include/astra/Data3D.h b/include/astra/Data3D.h
-index 9178cb5d..d6761b3b 100644
---- a/include/astra/Data3D.h
-+++ b/include/astra/Data3D.h
-@@ -174,10 +174,6 @@ public:
- 
- #endif
- 
--template class CDataMemory<float32>;
--template class CData3DObject<CProjectionGeometry3D>;
--template class CData3DObject<CVolumeGeometry3D>;
+diff --git a/python/pyproject.toml b/python/pyproject.toml
+index 6d18d014..148adaff 100644
+--- a/python/pyproject.toml
++++ b/python/pyproject.toml
+@@ -1,32 +1,2 @@
+-# TODO: Move more metadata here from setup.py
+-# (And figure out how to not make that ship every single file)
 -
- // Utility functions that create CDataMemory and Data3D objects together
- _AstraExport CFloat32ProjectionData3D *createCFloat32ProjectionData3DMemory(const CProjectionGeometry3D &geom);
- _AstraExport CFloat32ProjectionData3D *createCFloat32ProjectionData3DMemory(std::unique_ptr<CProjectionGeometry3D> &&geom);
-diff --git a/include/astra/Float32Data2D.h b/include/astra/Float32Data2D.h
-index 8b6b46fe..eff27b5c 100644
---- a/include/astra/Float32Data2D.h
-+++ b/include/astra/Float32Data2D.h
-@@ -40,8 +40,6 @@ public:
- 	T* m_fPtr;
- };
- 
--template class CCustomMemory<float32>;
+ [build-system]
+-requires = ["setuptools", "numpy", "Cython"]
+-build-backend = "setuptools.build_meta"
 -
- typedef CCustomMemory<float32> CFloat32CustomMemory;
- 
- /** 
-diff --git a/python/builder.py b/python/builder.py
-deleted file mode 100644
-index db51f55c..00000000
---- a/python/builder.py
-+++ /dev/null
-@@ -1,170 +0,0 @@
--# -----------------------------------------------------------------------
--# Copyright: 2010-2022, imec Vision Lab, University of Antwerp
--#            2013-2022, CWI, Amsterdam
--#
--# Contact: astra@astra-toolbox.com
--# Website: http://www.astra-toolbox.com/
--#
--# This file is part of the ASTRA Toolbox.
--#
--#
--# The ASTRA Toolbox is free software: you can redistribute it and/or modify
--# it under the terms of the GNU General Public License as published by
--# the Free Software Foundation, either version 3 of the License, or
--# (at your option) any later version.
--#
--# The ASTRA Toolbox is distributed in the hope that it will be useful,
--# but WITHOUT ANY WARRANTY; without even the implied warranty of
--# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
--# GNU General Public License for more details.
--#
--# You should have received a copy of the GNU General Public License
--# along with the ASTRA Toolbox. If not, see <http://www.gnu.org/licenses/>.
--#
--# -----------------------------------------------------------------------
+-[tool.astra.nocuda]
+-cuda = false
 -
--import os
+-[tool.astra.cuda]
+-cuda = true
+-
+-[tool.astra.linux_module]
+-extra_lib = [ 'astra/libastra.so*' ]
+-cuda = false
+-
+-[tool.astra.linux_module_cuda]
+-extra_lib = [ 'astra/libastra.so*' ]
+-cuda = true
+-
+-[tool.astra.windows_cuda]
+-extra_lib = [ 'astra/AstraCuda64.dll', 'astra/cudart64_12.dll', 'astra/cufft64_11.dll' ]
+-cuda = true
+-
+-[tool.astra.pypi_linux_cuda]
+-install_requires = ['nvidia-cuda-runtime-cu12', 'nvidia-cufft-cu12']
+-extra_lib = [ 'astra/libastra.so*' ]
+-cuda = true
+-
+-[tool.astra.conda_cuda]
+-cuda = true
++requires = ["setuptools ~= 58.0", "wheel", "cython >= 0.13", "numpy"]
+diff --git a/python/setup.py b/python/setup.py
+index 2d023323..06d186ef 100644
+--- a/python/setup.py
++++ b/python/setup.py
+@@ -22,147 +22,87 @@
+ # along with the ASTRA Toolbox. If not, see <http://www.gnu.org/licenses/>.
+ #
+ # -----------------------------------------------------------------------
+-
+ import os
 -import sys
 -import numpy as np
 -
--from distutils.core import setup
--
--from setuptools import Command
+-from setuptools import Command, Extension, setup
+-from setuptools.command.build import build
 -
 -from Cython.Distutils import build_ext
--from Cython.Build import cythonize
 -
 -import argparse
 -import sys
+-import glob
 -
--# We write a cython include file config.pxi containing the HAVE_CUDA setting
--# to the directory passed by --astra_build_config_dir on the command line,
--# or to the source dir otherwise.
 -
--if sys.version_info.major > 2:
--    parser = argparse.ArgumentParser(allow_abbrev=False, add_help=False)
--else:
--    parser = argparse.ArgumentParser(add_help=False)
--parser.add_argument('--astra_build_config_dir')
--parser.add_argument('--astra_build_cython_dir')
--parser.add_argument('--astra_cuda_dependencies', action='store_true')
--args, script_args = parser.parse_known_args()
+-# Load configuration data from pyproject.toml's tool.astra section,
+-# based on the value of the ASTRA_CONFIG environment variable.
 -
--if args.astra_build_cython_dir is None:
--    build_dir = '.'
--else:
--    build_dir = args.astra_build_cython_dir
+-extra_install_requires = []
+-extra_lib = []
+-use_cuda = False
 -
--if args.astra_cuda_dependencies:
--    extra_install_requires = ['nvidia-cuda-runtime-cu12==12.1.105', 'nvidia-cufft-cu12==11.0.2.54']
--else:
--    extra_install_requires = [ ]
+-# We require to be called in specific ways, so that we can find the ASTRA library and sources.
+-# Our Makefile and installation scripts take care of this. Detect if we are called in another way.
+-tool_profile = os.environ.get('ASTRA_CONFIG')
+-if not tool_profile:
+-    raise RuntimeError("The ASTRA python package is not intended to be installed this way. See the ASTRA installation instructions.")
 -
--use_cuda = ('-DASTRA_CUDA' in os.environ.get('CPPFLAGS', '') or
--            '/DASTRA_CUDA' in os.environ.get('CL', ''))
+-
+-try:
+-    import tomllib
+-except ImportError:
+-    import tomli as tomllib
+-with open('pyproject.toml', mode="rb") as F:
+-    config = tomllib.load(F)
+-try:
+-    section = config['tool']['astra'][tool_profile]
+-except KeyError:
+-    raise KeyError(f"Configuration [tool.astra.{tool_profile}] not found in pyproject.toml")
+-
+-if 'install_requires' in section:
+-    deps = section['install_requires']
+-    if isinstance(deps, str):
+-        deps = [ deps ]
+-    extra_install_requires += deps
+-if 'extra_lib' in section:
+-    extra_lib = section['extra_lib']
+-    if isinstance(extra_lib, str):
+-        extra_lib = [ extra_lib ]
+-if 'cuda' in section:
+-    use_cuda = section['cuda']
+-
+-# Write HAVE_CUDA to config.pxi:
 -
 -cfg_string = 'DEF HAVE_CUDA=' + str(use_cuda) + '\n'
 -update_cfg = True
 -
 -self_path = os.path.dirname(os.path.abspath(__file__))
 -
--include_path = []
--if args.astra_build_config_dir is None:
--    cfg_file = os.path.join(self_path, 'astra', 'config.pxi')
--else:
--    include_path += [args.astra_build_config_dir]
--    cfg_file = os.path.join(args.astra_build_config_dir, 'config.pxi')
+-cfg_file = os.path.join(self_path, 'astra', 'config.pxi')
 -
 -try:
 -    with open(cfg_file, 'r') as cfg:
@@ -183,148 +180,31 @@ index db51f55c..00000000
 -if update_cfg:
 -    with open(cfg_file, 'w') as cfg:
 -        cfg.write(cfg_string)
--
--cmdclass = {}
--
--# Custom command to (forcefully) override bdist's dist_dir setting used
--# by install/easy_install internally.
--# We use this to allow setting dist_dir to an out-of-tree build directory.
--class SetDistDirCommand(Command):
--    user_options = [
--        ('dist-dir=', 'd', "directory to put final built distributions in")
--    ]
--    def initialize_options(self):
--        self.dist_dir = None
--
--    def finalize_options(self):
--        bdist = self.reinitialize_command('bdist')
--        bdist.dist_dir = self.dist_dir
--        bdist.ensure_finalized()
--
--    def run(self):
--        pass
--
--# Custom command to add files (typically .so/.dll) to the module's directory
--# when installing (or building a wheel)
--class AddExtraLibCommand(Command):
--    user_options = [
--        ('file=', 'f', "extra platlib file(s) to install"),
--    ]
--    def initialize_options(self):
--        self.file = None
--
--    def finalize_options(self):
--        build_ext = self.get_finalized_command('build_ext')
--        self.build_lib = os.path.join(build_ext.build_lib, 'astra')
--
--    def run(self):
--        import shutil
--        for F in self.file.split(';'):
--            print("Installing", F, "to", self.build_lib)
--            shutil.copy2(F, self.build_lib)
--
--    # TODO: Do we need get_outputs()?
--
--
--ext_modules = cythonize(os.path.join('.', 'astra', '*.pyx'),
--                        include_path=include_path,
--                        build_dir=build_dir,
--                        language_level=3)
--cmdclass = {'build_ext': build_ext, 'set_dist_dir': SetDistDirCommand, 'add_extra_lib': AddExtraLibCommand }
--
--for m in ext_modules:
--    if m.name in ('astra.plugin_c', 'astra.algorithm_c'):
--        m.sources.append(os.path.join('.', 'astra', 'src',
--                                      'PythonPluginAlgorithm.cpp'))
--    if m.name in ('astra.plugin_c'):
--        m.sources.append(os.path.join('.', 'astra', 'src',
--                                      'PythonPluginAlgorithmFactory.cpp'))
--    if m.name in ('astra.utils'):
--        m.sources.append(os.path.join('.', 'astra', 'src',
--                                      'dlpack.cpp'))
--
--with open('README.md', 'r', encoding='utf-8') as f:
--    long_description = f.read()
--
--
--setup(
--    script_args=script_args,
--    ext_modules=ext_modules,
--    include_dirs=[np.get_include()],
--    cmdclass=cmdclass,
--    packages=['astra', 'astra.plugins'],
--    install_requires=['numpy', 'scipy'] + extra_install_requires,
--    name='astra-toolbox',
--    version='2.3.1',
--    description='High-performance GPU primitives and algorithms for 2D and 3D tomography',
--    long_description=long_description,
--    long_description_content_type='text/markdown',
--    license='GPLv3',
--    project_urls={
--        'Home page': 'https://astra-toolbox.com',
--        'Source': 'https://github.com/astra-toolbox/astra-toolbox'
--    }
--)
-diff --git a/python/pyproject.toml b/python/pyproject.toml
-new file mode 100644
-index 00000000..148adaff
---- /dev/null
-+++ b/python/pyproject.toml
-@@ -0,0 +1,2 @@
-+[build-system]
-+requires = ["setuptools ~= 58.0", "wheel", "cython >= 0.13", "numpy"]
-diff --git a/python/setup.py b/python/setup.py
-new file mode 100644
-index 00000000..b440afb7
---- /dev/null
-+++ b/python/setup.py
-@@ -0,0 +1,122 @@
-+# -----------------------------------------------------------------------
-+# Copyright: 2010-2022, imec Vision Lab, University of Antwerp
-+#            2013-2022, CWI, Amsterdam
-+#
-+# Contact: astra@astra-toolbox.com
-+# Website: http://www.astra-toolbox.com/
-+#
-+# This file is part of the ASTRA Toolbox.
-+#
-+#
-+# The ASTRA Toolbox is free software: you can redistribute it and/or modify
-+# it under the terms of the GNU General Public License as published by
-+# the Free Software Foundation, either version 3 of the License, or
-+# (at your option) any later version.
-+#
-+# The ASTRA Toolbox is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-+# GNU General Public License for more details.
-+#
-+# You should have received a copy of the GNU General Public License
-+# along with the ASTRA Toolbox. If not, see <http://www.gnu.org/licenses/>.
-+#
-+# -----------------------------------------------------------------------
-+import os
 +import platform
-+
+ 
 +from Cython.Build import cythonize
 +import numpy as np
 +from setuptools import setup
-+
+ 
 +ASTRA_USE_CUDA = os.environ.get('ASTRA_USE_CUDA') in ('ON', 'TRUE', 'YES')
 +print("ASTRA_USE_CUDA is set to {}".format(ASTRA_USE_CUDA))
-+
+ 
+-# Custom setuptools (sub)command to install extra file into wheel
 +# Create a cython cxi file with either HAVE_CUDA=True or False
 +with open(
 +        os.path.join(os.path.dirname(__file__), 'astra', 'config.pxi'),
 +        'w',
 +) as cfg:
 +    cfg.write('DEF HAVE_CUDA={!s}\n'.format(ASTRA_USE_CUDA))
-+
+ 
+-cmdclass = {}
 +ext_modules = cythonize(
 +    module_list=os.path.join('.', 'astra', '*.pyx'),
-+    language_level=2,  # sets python features to python 2
++    language_level=3,  # sets python features to python 3
 +)
-+
+ 
+-class AddExtraLibCommand(Command):
+-    user_options = [
 +# Add additional parameters to each Extension
 +for m in ext_modules:
 +    m.include_dirs += [
@@ -334,17 +214,71 @@ index 00000000..b440afb7
 +            'Library' if platform.system() == 'Windows' else '',
 +            'include',
 +        )
-+    ]
-+    m.define_macros += [
-+        ('ASTRA_PYTHON', None),
-+        ('ASTRA_CUDA', None) if ASTRA_USE_CUDA else ('NO_ASTRA_CUDA', None),
-+    ]
+     ]
+-    def initialize_options(self):
+-        pass
+-
+-    def finalize_options(self):
+-        pass
+-
+-    def run(self):
+-        # TODO: We could also just copy all so/dll files from the astra/
+-        # directory to the right place?
+-        # TODO: Or re-evaluate simply adding these to package_data
+-        if extra_lib:
+-            import glob
+-            import shutil
+-            build_ext = self.get_finalized_command('build_ext')
+-            dst = os.path.join(build_ext.build_lib, 'astra')
+-            for F in extra_lib:
+-                for src in glob.glob(F):
+-                    print("Installing", src, "to", dst)
+-                    shutil.copy2(src, dst)
+-
+-# Prepare Cython modules
+-
+-def prepare_ext_modules():
+-    pyxfiles = glob.glob(os.path.join('.', 'astra', '*.pyx'))
+-    ext_modules = []
+-    for filename in pyxfiles:
+-        modulename = 'astra.' + os.path.splitext(os.path.basename(filename))[0]
+-        sources = [filename]
+-        if modulename in ('astra.plugin_c', 'astra.algorithm_c'):
+-            sources.append(os.path.join('astra', 'src',
+-                                  'PythonPluginAlgorithm.cpp'))
+-        if modulename in ('astra.plugin_c'):
+-            sources.append(os.path.join('astra', 'src',
+-                                  'PythonPluginAlgorithmFactory.cpp'))
+-        if modulename in ('astra.utils'):
+-            sources.append(os.path.join('astra', 'src',
+-                                  'dlpack.cpp'))
+-        ext = Extension(modulename, sources=sources, libraries=["astra"])
+-        assert not hasattr(ext, 'cython_directives')
+-        ext.cython_directives = {'language_level': "3"}
+-        ext_modules.append(ext)
+-
+-    return ext_modules
+-
+-# See https://github.com/pypa/setuptools/discussions/3762
+-class CustomBuild(build):
+-    sub_commands = build.sub_commands + [('add_extra_lib', None)]
+-
+-cmdclass = {'build': CustomBuild, 'build_ext': build_ext, 'add_extra_lib': AddExtraLibCommand }
+-
+-with open('README.md', 'r') as f:
++    m.define_macros += [('ASTRA_PYTHON', None)]
++    if ASTRA_USE_CUDA:
++        m.define_macros += [('ASTRA_CUDA', None), ('ASTRA_BUILDING_CUDA', None)]
 +    m.library_dirs += [
 +        os.path.join(
 +            os.environ['CONDA_PREFIX'],
 +            'Library' if platform.system() == 'Windows' else '',
 +            'lib',
 +        )
++    ]
++    m.libraries += ['astra']
++    m.extra_compile_args += [
++        '/std:c++17' if platform.system() == 'Windows' else '-std=c++17'
 +    ]
 +    if m.name in ('astra.utils'):
 +        m.sources.append(
@@ -377,19 +311,23 @@ index 00000000..b440afb7
 +                'PythonPluginAlgorithmFactory.cpp',
 +            ))
 +
-+with open('README.md', 'r') as f:
-+    long_description = f.read()
-+
-+setup(
-+    name='astra-toolbox',
-+    version='2.3.1',
-+    description='High-performance GPU primitives and algorithms for 2D and 3D tomography',
-+    long_description=long_description,
-+    long_description_content_type='text/markdown',
-+    license='GPLv3',
-+    project_urls={
-+        'Home page': 'https://astra-toolbox.com',
-+        'Source': 'https://github.com/astra-toolbox/astra-toolbox'
++with open('README.md', 'r', encoding='utf-8') as f:
+     long_description = f.read()
+ 
+ setup(
+-    ext_modules=prepare_ext_modules(),
+-    include_dirs=[np.get_include()],
+-    cmdclass=cmdclass,
+-    packages=['astra', 'astra.plugins'],
+-    install_requires=['numpy', 'scipy'] + extra_install_requires,
+     name='astra-toolbox',
+     version='2.4.1',
+     description='High-performance GPU primitives and algorithms for 2D and 3D tomography',
+@@ -172,5 +112,14 @@ setup(
+     project_urls={
+         'Home page': 'https://astra-toolbox.com',
+         'Source': 'https://github.com/astra-toolbox/astra-toolbox'
+-    }
 +    },
 +    ext_modules=ext_modules,
 +    packages=[
@@ -400,13 +338,13 @@ index 00000000..b440afb7
 +        'numpy',
 +        'scipy',
 +    ],
-+)
+ )
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
 new file mode 100644
-index 00000000..72729e9b
+index 00000000..a0a40a78
 --- /dev/null
 +++ b/src/CMakeLists.txt
-@@ -0,0 +1,172 @@
+@@ -0,0 +1,181 @@
 +# Collect source and header files --------------------------------------------
 +set(ASTRA_SOURCES
 +    Algorithm.cpp
@@ -418,6 +356,7 @@ index 00000000..72729e9b
 +    CompositeGeometryManager.cpp
 +    ConeProjectionGeometry3D.cpp
 +    ConeVecProjectionGeometry3D.cpp
++    CylConeVecProjectionGeometry3D.cpp
 +    Config.cpp
 +    Data3D.cpp
 +    DataProjector.cpp
@@ -546,6 +485,8 @@ index 00000000..72729e9b
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/cgls3d.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/cone_fp.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/cone_bp.cu"
++      "${CMAKE_SOURCE_DIR}/cuda/3d/cone_cyl.cu"
++      "${CMAKE_SOURCE_DIR}/cuda/3d/cone_cyl_bp.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/fdk.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/par3d_fp.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/par3d_bp.cu"
@@ -572,6 +513,12 @@ index 00000000..72729e9b
 +    astra
 +    PUBLIC
 +    "ASTRA_CUDA")
++  
++  # ASTRA_BUILDING_CUDA chooses CUDA in favour of HIP toolchain
++  target_compile_definitions(
++    astra
++    PUBLIC
++    "ASTRA_BUILDING_CUDA")
 +
 +  target_link_libraries(
 +    astra
@@ -579,32 +526,6 @@ index 00000000..72729e9b
 +    CUDA::cufft CUDA::cudart)
 +
 +endif()
-diff --git a/src/Data3D.cpp b/src/Data3D.cpp
-index fa5553d3..d6e40407 100644
---- a/src/Data3D.cpp
-+++ b/src/Data3D.cpp
-@@ -107,5 +107,8 @@ CFloat32VolumeData3D *createCFloat32VolumeData3DMemory(std::unique_ptr<CVolumeGe
- 	return new CFloat32VolumeData3D(std::move(geom), storage);
- }
- 
-+template class CDataMemory<float32>;
-+template class CData3DObject<CProjectionGeometry3D>;
-+template class CData3DObject<CVolumeGeometry3D>;
- 
- }
-diff --git a/src/Float32Data2D.cpp b/src/Float32Data2D.cpp
-index b085e4bc..fe1f2175 100644
---- a/src/Float32Data2D.cpp
-+++ b/src/Float32Data2D.cpp
-@@ -590,7 +590,6 @@ std::string CFloat32Data2D::description() const
- 	return res.str();
- }
- 
--
--
-+template class CCustomMemory<float32>;
- 
- } // end namespace astra
 diff --git a/src/Globals.cpp b/src/Globals.cpp
 index 5b19eb5a..255747be 100644
 --- a/src/Globals.cpp
@@ -654,185 +575,3 @@ index 00000000..a8e44a66
 +             LINK_LIBRARIES "Boost::unit_test_framework;astra")
 +
 +add_test(COMMAND astratest)
-diff --git a/tests/test_FanFlatProjectionGeometry2D.cpp b/tests/test_FanFlatProjectionGeometry2D.cpp
-index 5c669223..f5d89d67 100644
---- a/tests/test_FanFlatProjectionGeometry2D.cpp
-+++ b/tests/test_FanFlatProjectionGeometry2D.cpp
-@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( testFanFlatProjectionGeometry2D_Clone )
- 	BOOST_REQUIRE( geom2 );
- 	BOOST_REQUIRE( geom2->isInitialized() );
- 
--	BOOST_CHECK( geom.isEqual(geom2) );
-+	BOOST_CHECK( geom.isEqual(*geom2) );
- 	BOOST_CHECK( geom2->getProjectionAngleCount() == 4 );
- 	BOOST_CHECK( geom2->getDetectorCount() == 8 );
- 	BOOST_CHECK( geom2->getDetectorWidth() == 0.5f );
-diff --git a/tests/test_Float32ProjectionData2D.cpp b/tests/test_Float32ProjectionData2D.cpp
-index d3f9a7b1..5e6de0af 100644
---- a/tests/test_Float32ProjectionData2D.cpp
-+++ b/tests/test_Float32ProjectionData2D.cpp
-@@ -44,11 +44,11 @@ BOOST_AUTO_TEST_CASE( testFloat32ProjectionData2D_Constructor1 )
- 	astra::CParallelProjectionGeometry2D geom(2, 4, 0.5f, angles);
- 	BOOST_REQUIRE( geom.isInitialized() );
- 
--	astra::CFloat32ProjectionData2D data(&geom);
-+	astra::CFloat32ProjectionData2D data(geom);
- 	BOOST_REQUIRE( data.isInitialized() );
- 
- 	BOOST_CHECK( data.getType() == astra::CFloat32Data2D::PROJECTION );
--	BOOST_CHECK( data.getGeometry()->isEqual(&geom) );
-+	BOOST_CHECK( data.getGeometry().isEqual(geom) );
- }
- 
- BOOST_AUTO_TEST_CASE( testFloat32ProjectionData2D_Constructor2 )
-@@ -58,11 +58,11 @@ BOOST_AUTO_TEST_CASE( testFloat32ProjectionData2D_Constructor2 )
- 	astra::CParallelProjectionGeometry2D geom(2, 4, 0.5f, angles);
- 	BOOST_REQUIRE( geom.isInitialized() );
- 
--	astra::CFloat32ProjectionData2D data(&geom, d);
-+	astra::CFloat32ProjectionData2D data(geom, d);
- 	BOOST_REQUIRE( data.isInitialized() );
- 
- 	BOOST_CHECK( data.getType() == astra::CFloat32Data2D::PROJECTION );
--	BOOST_CHECK( data.getGeometry()->isEqual(&geom) );
-+	BOOST_CHECK( data.getGeometry().isEqual(geom) );
- 
- 	// CHECKME: should this be necessary?
- 	data.updateStatistics();
-@@ -76,11 +76,11 @@ BOOST_AUTO_TEST_CASE( testFloat32ProjectionData2D_Constructor3 )
- 	astra::CParallelProjectionGeometry2D geom(2, 4, 0.5f, angles);
- 	BOOST_REQUIRE( geom.isInitialized() );
- 
--	astra::CFloat32ProjectionData2D data(&geom, 3.5f);
-+	astra::CFloat32ProjectionData2D data(geom, 3.5f);
- 	BOOST_REQUIRE( data.isInitialized() );
- 
- 	BOOST_CHECK( data.getType() == astra::CFloat32Data2D::PROJECTION );
--	BOOST_CHECK( data.getGeometry()->isEqual(&geom) );
-+	BOOST_CHECK( data.getGeometry().isEqual(geom) );
- 
- 	// CHECKME: should this be necessary?
- 	data.updateStatistics();
-@@ -94,13 +94,13 @@ BOOST_AUTO_TEST_CASE( testFloat32ProjectionData2D_Clone )
- 	astra::CParallelProjectionGeometry2D geom(2, 4, 0.5f, angles);
- 	BOOST_REQUIRE( geom.isInitialized() );
- 
--	astra::CFloat32ProjectionData2D data(&geom, 3.5f);
-+	astra::CFloat32ProjectionData2D data(geom, 3.5f);
- 	BOOST_REQUIRE( data.isInitialized() );
- 
- 	astra::CFloat32ProjectionData2D data2(data);
- 	BOOST_REQUIRE( data2.isInitialized() );
- 
--	BOOST_CHECK( data2.getGeometry()->isEqual(&geom) );
-+	BOOST_CHECK( data2.getGeometry().isEqual(geom) );
- 	BOOST_CHECK( data2.getDataConst()[0] == 3.5f );
- 	BOOST_CHECK( data2.getDataConst()[3] == 3.5f );
- 
-@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE( testFloat32ProjectionData2D_Clone )
- 	data3 = data;
- 	BOOST_REQUIRE( data3.isInitialized() );
- 
--	BOOST_CHECK( data3.getGeometry()->isEqual(&geom) );
-+	BOOST_CHECK( data3.getGeometry().isEqual(geom) );
- 	BOOST_CHECK( data3.getDataConst()[0] == 3.5f );
- 	BOOST_CHECK( data3.getDataConst()[3] == 3.5f );
- }
-diff --git a/tests/test_Float32VolumeData2D.cpp b/tests/test_Float32VolumeData2D.cpp
-index c8c80930..1018f061 100644
---- a/tests/test_Float32VolumeData2D.cpp
-+++ b/tests/test_Float32VolumeData2D.cpp
-@@ -42,11 +42,11 @@ BOOST_AUTO_TEST_CASE( testFloat32VolumeData2D_Constructor1 )
- 	astra::CVolumeGeometry2D geom(16, 32);
- 	BOOST_REQUIRE( geom.isInitialized() );
- 
--	astra::CFloat32VolumeData2D data(&geom);
-+	astra::CFloat32VolumeData2D data(geom);
- 	BOOST_REQUIRE( data.isInitialized() );
- 
- 	BOOST_CHECK( data.getType() == astra::CFloat32Data2D::VOLUME );
--	BOOST_CHECK( data.getGeometry()->isEqual(&geom) );
-+	BOOST_CHECK( data.getGeometry().isEqual(geom) );
- }
- 
- BOOST_AUTO_TEST_CASE( testFloat32VolumeData2D_Constructor1odd )
-@@ -54,11 +54,11 @@ BOOST_AUTO_TEST_CASE( testFloat32VolumeData2D_Constructor1odd )
- 	astra::CVolumeGeometry2D geom(16, 32);
- 	BOOST_REQUIRE( geom.isInitialized() );
- 
--	astra::CFloat32VolumeData2D data(&geom, 1.0f);
-+	astra::CFloat32VolumeData2D data(geom, 1.0f);
- 	BOOST_REQUIRE( data.isInitialized() );
- 
- 	BOOST_CHECK( data.getType() == astra::CFloat32Data2D::VOLUME );
--	BOOST_CHECK( data.getGeometry()->isEqual(&geom) );
-+	BOOST_CHECK( data.getGeometry().isEqual(geom) );
- 
- 	// CHECKME: should this be necessary?
- 	data.updateStatistics();
-@@ -71,12 +71,12 @@ BOOST_AUTO_TEST_CASE( testFloat32VolumeData2D_Constructor2 )
- 	astra::CVolumeGeometry2D geom(2, 2);
- 	BOOST_REQUIRE( geom.isInitialized() );
- 
--	astra::CFloat32VolumeData2D data(&geom, d);
-+	astra::CFloat32VolumeData2D data(geom, d);
- 	BOOST_REQUIRE( data.isInitialized() );
- 
- 	BOOST_CHECK( data.getType() == astra::CFloat32Data2D::VOLUME );
- 
--	BOOST_CHECK( data.getGeometry()->isEqual(&geom) );
-+	BOOST_CHECK( data.getGeometry().isEqual(geom) );
- 
- 	// CHECKME: should this be necessary?
- 	data.updateStatistics();
-@@ -89,13 +89,13 @@ BOOST_AUTO_TEST_CASE( testFloat32VolumeData2D_Clone )
- 	astra::CVolumeGeometry2D geom(2, 2);
- 	BOOST_REQUIRE( geom.isInitialized() );
- 
--	astra::CFloat32VolumeData2D data(&geom, d);
-+	astra::CFloat32VolumeData2D data(geom, d);
- 	BOOST_REQUIRE( data.isInitialized() );
- 
- 	astra::CFloat32VolumeData2D data2(data);
- 	BOOST_REQUIRE( data2.isInitialized() );
- 
--	BOOST_CHECK( data2.getGeometry()->isEqual(&geom) );
-+	BOOST_CHECK( data2.getGeometry().isEqual(geom) );
- 	BOOST_CHECK( data2.getDataConst()[0] == 1.0f );
- 	BOOST_CHECK( data2.getDataConst()[3] == 4.0f );
- 
-@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( testFloat32VolumeData2D_Clone )
- 	data3 = data;
- 	BOOST_REQUIRE( data3.isInitialized() );
- 
--	BOOST_CHECK( data3.getGeometry()->isEqual(&geom) );
-+	BOOST_CHECK( data3.getGeometry().isEqual(geom) );
- 	BOOST_CHECK( data3.getDataConst()[0] == 1.0f );
- 	BOOST_CHECK( data3.getDataConst()[3] == 4.0f );
- }
-diff --git a/tests/test_ParallelProjectionGeometry2D.cpp b/tests/test_ParallelProjectionGeometry2D.cpp
-index c5054ed7..460a000a 100644
---- a/tests/test_ParallelProjectionGeometry2D.cpp
-+++ b/tests/test_ParallelProjectionGeometry2D.cpp
-@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE( testParallelProjectionGeometry2D_Clone )
- 
- 	BOOST_REQUIRE( geom2->isInitialized() );
- 
--	BOOST_CHECK( geom.isEqual(geom2) );
-+	BOOST_CHECK( geom.isEqual(*geom2) );
- 	BOOST_CHECK( geom2->getProjectionAngleCount() == 4 );
- 	BOOST_CHECK( geom2->getDetectorCount() == 8 );
- 	BOOST_CHECK( geom2->getDetectorWidth() == 0.5f );
-diff --git a/tests/test_VolumeGeometry2D.cpp b/tests/test_VolumeGeometry2D.cpp
-index 5ee96782..53a79e1b 100644
---- a/tests/test_VolumeGeometry2D.cpp
-+++ b/tests/test_VolumeGeometry2D.cpp
-@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( testVolumeGeometry2D_Clone )
- 
- 	BOOST_REQUIRE( geom2->isInitialized() );
- 
--	BOOST_CHECK( geom.isEqual(geom2) );
-+	BOOST_CHECK( geom.isEqual(*geom2) );
- 	BOOST_CHECK( geom2->getGridColCount() == 16 );
- 	BOOST_CHECK( geom2->getGridRowCount() == 32 );
- 	BOOST_CHECK( geom2->getGridTotCount() == 512 );

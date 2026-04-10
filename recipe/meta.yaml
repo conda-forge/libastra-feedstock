@@ -1,6 +1,6 @@
-{% set version = "2.3.1" %}
-{% set commit = "c9402b770efcc2721e6c49dec8428542e59f7a17" %}  # https://github.com/astra-toolbox/astra-toolbox/releases/tag/v2.3.1
-{% set build_number = 2 %}
+{% set version = "2.4.1" %}
+{% set commit = "4f82d206545920b80429869970ee8c04270ca3c9" %}  # https://github.com/astra-toolbox/astra-toolbox/releases/tag/v2.4.1
+{% set build_number = 0 %}
 
 package:
   name: libastra
@@ -8,9 +8,9 @@ package:
 
 source:
   url: https://github.com/astra-toolbox/astra-toolbox/archive/{{ commit }}.tar.gz
-  sha256: 3b4484df8289518de9f31d985e70cb58b65a2a82b99a0d4b9ec5eecf8b96789f
+  sha256: f9f7b1ac66ba0fdb84f24078ea103f64392e6fb46403cec26ca948d0f93ab268
   patches:
-  # patch created from askorikov/astra-toolbox@release_2.3.1_cmake
+  # patch created from askorikov/astra-toolbox@release_2.4.1_cmake
     - cmake.patch
 
 build:
