@@ -1,6 +1,6 @@
 {% set version = "2.4.1" %}
 {% set commit = "4f82d206545920b80429869970ee8c04270ca3c9" %}  # https://github.com/astra-toolbox/astra-toolbox/releases/tag/v2.4.1
-{% set build_number = 0 %}
+{% set build_number = 1 %}
 
 package:
   name: libastra
